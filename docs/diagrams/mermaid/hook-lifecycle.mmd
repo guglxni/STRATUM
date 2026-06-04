@@ -1,0 +1,28 @@
+%% StratumHook v4 callback lifecycle
+sequenceDiagram
+    participant LP as Liquidity Provider
+    participant PM as PoolManager
+    participant HK as StratumHook
+
+    Note over LP,HK: Pool setup
+    LP->>HK: preparePool(params)
+    LP->>PM: initialize(poolKey)
+    PM->>HK: beforeInitialize
+    HK-->>PM: PoolTrancheState + stLP/jtLP
+
+    Note over LP,HK: Deposit
+    LP->>PM: modifyLiquidity(+L, hookData: tranche)
+    PM->>HK: afterAddLiquidity
+    HK-->>HK: mint stLP/jtLP, store TranchePosition
+
+    Note over LP,HK: Trading
+    LP->>PM: swap
+    PM->>HK: beforeSwap → dynamic fee bps
+    PM->>HK: afterSwap → waterfall split, IL EWMA
+
+    Note over LP,HK: Withdraw
+    LP->>PM: modifyLiquidity(-L, hookData)
+    PM->>HK: beforeRemoveLiquidity → accrue vesting
+    PM->>HK: afterRemoveLiquidity
+    HK-->>HK: settle senior/junior, return delta adjustment
+    HK-->>PM: payout-enforcing hook delta

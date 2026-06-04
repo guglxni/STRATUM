@@ -1,0 +1,101 @@
+
+# Project Rules
+
+## Skill Auto-Invoke Rules
+
+Before writing or modifying any Solidity contract (.sol files), you MUST invoke:
+- /solidity-coding
+- /solidity-security
+- When creating NEW contracts from scratch, prefer using OpenZeppelinContracts MCP tools (solidity-erc20, solidity-erc721, etc.) to generate the base contract, then customize with /solidity-coding rules
+
+Before writing or modifying proxy/upgradeable contracts, you MUST invoke:
+- /solidity-coding
+- /solidity-security
+- /solidity-deploy
+- /defi-security
+
+Before writing or modifying test files (*.t.sol), you MUST invoke:
+- /solidity-testing
+
+Before deploying contracts or writing deployment scripts (*.s.sol), you MUST invoke:
+- /solidity-deploy
+- /defi-security
+
+Before any on-chain operation (cast send, forge script --broadcast), you MUST invoke:
+- /solidity-checklist
+
+Before debugging failed on-chain transactions, you MUST invoke:
+- /solidity-debug
+
+Before conducting security audits or code reviews, you MUST:
+- Run slither MCP analysis on the project first (if available) to get automated findings
+- Then invoke /solidity-audit for manual checklist review
+- Cross-reference both results for comprehensive coverage
+
+Before creating git commits or PRs, you MUST invoke:
+- /git-workflow
+
+## Context Recovery
+
+After every `/clear`, you MUST re-invoke:
+- /claude-code-usage
+
+## Workflow Orchestration
+
+### 1. Plan Mode Default
+- Enter Plan Mode for any non-trivial task (3+ steps or architectural decisions)
+- Understand existing code before proposing changes
+- Break down complex tasks using TodoWrite before starting
+
+### 2. Subagent Strategy
+- Use subagents (Task tool) extensively to keep the main context window clean
+- Delegate code search and file exploration to Explore agent
+- Delegate test runs and builds to Bash agent
+
+### 3. Self-Improvement Loop
+- Record lessons learned after every user correction
+- Continuously improve workflow, avoid repeating mistakes
+
+### 4. Verification Before Done
+- Verify before marking complete: run tests, check compilation, prove correctness
+- Solidity projects: `forge build` + `forge test` must pass
+- Never mark a task as completed unless verified
+
+### 5. Autonomous Bug Fixing
+- When encountering compilation errors or test failures, fix them directly without waiting for guidance
+- Re-verify after every fix
+
+## Task Management
+
+- Use TodoWrite tool to track all task progress
+- Break down plans before starting, mark completed immediately after finishing
+- Only one task should be in_progress at any time
+
+## Core Principles
+
+### Simplicity First
+- Keep it as simple as possible, touch the least amount of code
+- No over-engineering, no adding features that were not requested
+
+### No Landmines
+- Find root causes, no temporary fixes
+- Leave no hidden hazards in the code
+
+### Minimal Impact
+- Only change what must be changed, do not refactor surrounding code
+- Do not add unnecessary comments, type annotations, or documentation
+
+## MCP Tools
+
+- **fetch**: Lightweight web fetching, suitable for API docs and static pages
+- **playwright**: Dynamic pages, JS-rendered content, screenshots
+- **OpenZeppelinContracts**: Generate secure smart contracts using OpenZeppelin standards (ERC20/721/1155/Governor/Account/Custom). Output is validated against OZ Contracts Wizard rules — imports, modifiers, security checks are guaranteed correct.
+- **slither**: Static analysis of Solidity projects via Slither engine (90+ detectors). Returns vulnerability findings with exact line numbers, impact levels, and confidence ratings.
+- Prefer fetch first, use playwright only when fetch is insufficient
+- Prefer OpenZeppelinContracts MCP for new contract scaffolding, then customize the output
+- Prefer slither MCP for automated scanning before manual /solidity-audit review
+- If MCP tools are not configured, all skills still work independently — graceful degradation
+
+## Language
+
+Always respond in the same language the user is using.

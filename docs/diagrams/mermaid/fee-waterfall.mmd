@@ -1,0 +1,17 @@
+%% Swap fee → epoch → tranche attribution
+flowchart LR
+    S[Swap volume] --> F[beforeSwap dynamic fee bps]
+    F --> A[afterSwap feeAmount]
+    A --> W[Waterfall.splitFee]
+    W --> P[protocolPortion]
+    W --> SN[seniorPortion → epochSeniorFunded]
+    W --> JU[juniorPortion → juniorReserve]
+
+    SN --> CE[closeEpoch]
+    JU --> CE
+    CE --> SF[seniorFeePerShareX128]
+    CE --> JF[juniorFeePerShareX128]
+    CE --> SH[shortfall → draw juniorReserve]
+
+    SF --> SET[_settleSenior earned]
+    JF --> SET2[_settleJunior earned]

@@ -1,0 +1,31 @@
+<mxfile host="app.diagrams.net" agent="STRATUM-docs" version="22.1.0">
+  <diagram id="coverage-epoch" name="Coverage and Epoch">
+    <mxGraphModel dx="1100" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="700">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="t" value="Coverage ratio &amp; epoch control" style="text;html=1;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="400" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="cov" value="CoverageRatio&#xa;juniorTVL / seniorTVL (bps)&#xa;enforceOnSeniorIntake · junior exit check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="ep" value="EpochAccounting + closeEpoch&#xa;obligation · surplus/shortfall&#xa;feePerShareX128 per tranche" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;" vertex="1" parent="1">
+          <mxGeometry x="420" y="80" width="300" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="res" value="juniorReserve&#xa;IL absorption · senior shortfall cover" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="760" y="80" width="200" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" style="endArrow=classic;html=1;" edge="1" parent="1" source="cov" target="res">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" style="endArrow=classic;html=1;" edge="1" parent="1" source="ep" target="res">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="time" value="epochStartTimestamp + smoothingEpochSeconds → closeEpoch (EpochNotElapsed)" style="text;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="200" y="220" width="600" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

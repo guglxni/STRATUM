@@ -1,0 +1,51 @@
+# Foundry build & deploy artifacts (may contain tx metadata)
+cache/
+out/
+broadcast/
+
+# Secrets & credentials — NEVER commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+credentials.json
+secrets.json
+**/secrets/
+**/.secrets/
+
+# Security & internal audit reports (local only; see SECURITY.md)
+docs/AUDIT.md
+docs/AUDIT_*.md
+security/**
+!security/README.example
+internal/
+**/private-audit/
+*.audit.local.md
+
+# Agent / IDE / session (may contain keys or prompts)
+.agents/
+.claude/
+.cursor/
+.specstory/
+.cursorindexingignore
+*.local.md
+
+# graphify local cache
+graphify-out/
+
+# Archives / deps / build
+files.zip
+node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

@@ -1,0 +1,28 @@
+%% Repository module map (core path)
+flowchart LR
+    subgraph src
+        SH[StratumHook.sol]
+        TT[TrancheToken.sol]
+        subgraph libs
+            IL[ILMath]
+            WF[Waterfall]
+            CR[CoverageRatio]
+            EA[EpochAccounting]
+        end
+        subgraph periph
+            ES[EpochSettler]
+            CM[CoverageMonitor]
+        end
+    end
+
+    subgraph test
+        U[unit/]
+        I[integration/]
+        V[invariant/]
+        SC[scenario/]
+    end
+
+    SH --> IL & WF & CR & EA
+    SH --> TT
+    ES & CM -.-> SH
+    I & V & SC --> SH

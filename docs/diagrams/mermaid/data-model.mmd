@@ -1,0 +1,24 @@
+%% Core storage (PoolId → state, positionId → position)
+erDiagram
+    PoolTrancheState ||--o{ TranchePosition : "many positions"
+    PoolTrancheState {
+        uint256 seniorTVL
+        uint256 juniorTVL
+        uint256 juniorReserve
+        uint256 epochSeniorObligation
+        uint256 seniorFeePerShareX128
+        uint256 juniorFeePerShareX128
+        uint64 currentEpoch
+        uint256 epochStartTimestamp
+    }
+    TranchePosition {
+        address owner
+        TrancheType tranche
+        uint128 liquidity
+        uint256 principalValue
+        uint256 entryTimestamp
+        uint256 feePerShareCheckpointX128
+        uint256 vestedClaimable
+    }
+    StratumHook ||--|| PoolTrancheState : poolStates
+    StratumHook ||--|| TranchePosition : positions

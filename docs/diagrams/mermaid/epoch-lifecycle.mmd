@@ -1,0 +1,15 @@
+%% Epoch boundary: closeEpoch + fee-per-share (FR-13, INV-06)
+stateDiagram-v2
+    [*] --> EpochOpen: beforeInitialize / closeEpoch
+    EpochOpen --> Accumulating: swaps (afterSwap)
+    Accumulating --> Accumulating: epochSeniorFunded += senior slice
+    Accumulating --> CloseReady: timestamp >= epochStart + smoothingEpochSeconds
+    CloseReady --> Settling: closeEpoch()
+    state Settling {
+        [*] --> SurplusShortfall
+        SurplusShortfall --> DrawReserve: shortfall > 0
+        DrawReserve --> FundSenior: juniorReserve -= cover
+        SurplusShortfall --> CreditShare: senior/junior feePerShareX128 +=
+        CreditShare --> Reset: epoch++, fees=0, new obligation
+    }
+    Settling --> EpochOpen: epochStartTimestamp = now

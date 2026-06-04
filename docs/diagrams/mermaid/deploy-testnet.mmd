@@ -1,0 +1,14 @@
+%% Unichain Sepolia deploy path (Phase 2)
+sequenceDiagram
+    participant Dev as Developer
+    participant F as Foundry script
+    participant UC as Unichain Sepolia
+    participant BS as Blockscout
+
+    Dev->>Dev: cp .env.example .env
+    Dev->>F: DeployStratum.s.sol --broadcast
+    F->>UC: PoolManager + StratumHook CREATE2
+    F->>UC: EpochSettler + CoverageMonitor
+    Dev->>F: verify.sh (rate-limited)
+    F->>BS: contract verification API
+    Note over Dev,UC: preparePool → initialize → modifyLiquidity per DEPLOYMENT.md

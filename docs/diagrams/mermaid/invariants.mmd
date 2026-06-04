@@ -1,0 +1,19 @@
+%% Requirement invariants (see docs/REQUIREMENTS.md)
+mindmap
+  root((STRATUM INV))
+    INV-01 Coverage
+      Senior intake blocked below floor
+      Junior exit blocked if breaks floor
+    INV-02 Senior protection
+      Buffer pays IL first
+      maxSeniorILExposureBps cap
+    INV-03 Junior first loss
+      IL reduces junior payout
+      Reserve not double-debited
+    INV-04 Waterfall
+      Senior obligation before junior surplus
+    INV-05 Buffer integrity
+      Only epoch IL and shortfall draw reserve
+    INV-06 Epoch monotonic
+      currentEpoch only increases
+      EpochNotElapsed on early close

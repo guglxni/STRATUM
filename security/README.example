@@ -1,0 +1,28 @@
+# Local security workspace (not committed)
+
+Copy this folder to `security/` (gitignored) for internal audit artifacts:
+
+```bash
+mkdir -p security/private
+cp security/README.example security/README.md  # optional local note
+```
+
+## Suggested layout
+
+```
+security/
+  private/
+    OWASP_ASSESSMENT.md    # OWASP mapping + findings (copy from docs/AUDIT*.md)
+    AUDIT.md
+    AUDIT_GAPS.md
+    AUDIT_FIXES.md
+    scan-exports/          # Slither, Semgrep SARIF, etc.
+```
+
+Move existing reports out of git tracking:
+
+```bash
+mv docs/AUDIT.md docs/AUDIT_GAPS.md docs/AUDIT_FIXES.md security/private/ 2>/dev/null || true
+```
+
+Regenerate audits locally; never `git add security/` or `docs/AUDIT*.md`.

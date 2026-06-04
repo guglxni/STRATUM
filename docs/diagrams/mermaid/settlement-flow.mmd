@@ -1,0 +1,20 @@
+%% Withdrawal settlement decision tree (simplified)
+flowchart TD
+    A[afterRemoveLiquidity] --> B{Tranche?}
+    B -->|Senior| C[IL from ILMath.ilForRange]
+    B -->|Junior| D[IL + fee share + vested]
+
+    C --> E{juniorReserve >= IL?}
+    E -->|Yes| F[Buffer pays IL<br/>Senior: principal + yield]
+    E -->|No| G[Deplete buffer<br/>Cap senior IL at maxSeniorILExposureBps]
+    F --> H[Return hook delta vs v4 removal value]
+    G --> H
+
+    D --> I{IL > principal + fees?}
+    I -->|Yes| J[payout = 0]
+    I -->|No| K[Reduce payout by excess IL]
+    J --> H
+    K --> H
+
+    H --> L[_conservationCheck]
+    L --> M[Burn stLP/jtLP, delete position]

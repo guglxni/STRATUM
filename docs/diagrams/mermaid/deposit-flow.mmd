@@ -1,0 +1,13 @@
+%% FR-01 / FR-02: tranche deposit via modifyLiquidity
+flowchart LR
+    LP[Liquidity Provider] --> PM[PoolManager.modifyLiquidity +L]
+    PM --> HK[afterAddLiquidity]
+    HK --> DEC{TrancheType?}
+    DEC -->|JUNIOR| J1[juniorTVL += principalValue]
+    DEC -->|SENIOR| S1[enforceOnSeniorIntake]
+    S1 --> S2[seniorTVL += principalValue]
+    S2 --> SYNC[_syncSeniorObligation]
+    J1 --> POS[TranchePosition stored]
+    SYNC --> POS
+    POS --> MINT[Mint jtLP or stLP]
+    MINT --> CHK[feePerShareCheckpointX128 = pool cumulative]

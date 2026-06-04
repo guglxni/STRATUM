@@ -1,0 +1,29 @@
+<mxfile host="app.diagrams.net" agent="STRATUM-docs" version="22.1.0">
+  <diagram id="tranche-waterfall" name="Tranche Waterfall">
+    <mxGraphModel dx="1100" dy="750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="600">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="fees" value="Swap fees (dynamic bps)" style="rounded=1;fillColor=#dae8fc;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="200" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="sen" value="1. Senior obligation&#xa;epochSeniorFunded" style="rounded=1;fillColor=#1a3a5c;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="120" y="160" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="jun" value="2. Junior surplus&#xa;juniorReserve + feePerShare" style="rounded=1;fillColor=#2d4a3e;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="400" y="160" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="pro" value="3. Protocol" style="rounded=1;fillColor=#f5f5f5;" vertex="1" parent="1">
+          <mxGeometry x="680" y="160" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="il" value="IL at withdrawal: junior buffer → senior cap" style="rounded=1;fillColor=#f8cecc;" vertex="1" parent="1">
+          <mxGeometry x="280" y="300" width="440" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="a1" style="endArrow=classic;html=1;" edge="1" parent="1" source="fees" target="sen"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a2" style="endArrow=classic;html=1;" edge="1" parent="1" source="fees" target="jun"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a3" style="endArrow=classic;html=1;" edge="1" parent="1" source="fees" target="pro"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a4" style="endArrow=classic;html=1;dashed=1;" edge="1" parent="1" source="jun" target="il"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

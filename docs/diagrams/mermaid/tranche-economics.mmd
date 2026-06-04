@@ -1,0 +1,17 @@
+%% Senior vs junior risk split (structured credit on AMM liquidity)
+flowchart TB
+    POOL[Uniswap v4 pool fees + IL] --> WF[Priority waterfall]
+    WF --> SN[Senior tranche stLP]
+    WF --> JN[Junior tranche jtLP]
+    WF --> PR[Protocol fee]
+
+    SN --> SY[Fixed APY target + fee-per-share]
+    SN --> ILP[IL protected by juniorReserve first]
+    JN --> JY[Leveraged fee surplus]
+    JN --> ILA[Absorbs IL first on withdrawal]
+
+    IL[Price move ILMath] --> ILA
+    IL --> ILP
+
+    style SN fill:#1a3a5c,color:#fff
+    style JN fill:#2d4a3e,color:#fff

@@ -1,0 +1,37 @@
+%% STRATUM system layers — render: mmdc -i system-layers.mmd -o ../svg/system-layers.svg
+flowchart TB
+    subgraph reactive["Reactive Network (autonomic)"]
+        ES[EpochSettler]
+        CM[CoverageMonitor]
+        RB[ReserveBalancer]
+    end
+
+    subgraph peripherals["Optional peripherals"]
+        AC[Across CPHR]
+        BR[Brevis ZK fees]
+        EL[EigenLayer AVS]
+        ST[Stylus matching + ML]
+    end
+
+    subgraph core["Unichain — core (always on)"]
+        HK[StratumHook]
+        PM[PoolManager v4]
+        STLP[stLP]
+        JTLP[jtLP]
+    end
+
+    PM <-->|hooks| HK
+    HK --> STLP
+    HK --> JTLP
+    reactive -->|epoch / stress callbacks| HK
+    AC -.->|reserve bridge| HK
+    BR -.->|proof verify| HK
+    EL -.->|LVR yield| HK
+    ST -.->|vol / netting| HK
+
+    classDef core fill:#1a3a5c,color:#fff,stroke:#0d2137
+    classDef opt fill:#2d4a3e,color:#fff,stroke:#1a3028,stroke-dasharray:5
+    classDef coord fill:#4a2d5c,color:#fff,stroke:#2d1a3a
+    class HK,PM,STLP,JTLP core
+    class AC,BR,EL,ST opt
+    class ES,CM,RB coord
