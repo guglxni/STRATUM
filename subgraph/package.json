@@ -1,0 +1,18 @@
+{
+  "name": "stratum-subgraph",
+  "version": "0.1.0",
+  "description": "The Graph subgraph for the STRATUM Uniswap v4 credit-tranching hook (D-7).",
+  "license": "MIT",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "test": "graph test",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ stratum",
+    "create-local": "graph create --node http://localhost:8020/ stratum",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 stratum"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.97.1",
+    "@graphprotocol/graph-ts": "0.38.0"
+  }
+}

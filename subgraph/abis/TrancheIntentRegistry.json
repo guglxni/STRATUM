@@ -1,0 +1,369 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "hook_",
+        "type": "address",
+        "internalType": "contract IStratumHook"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "MAX_POOL_INTENTS",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "cancelIntent",
+    "inputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "conditionMet",
+    "inputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "executeIntent",
+    "inputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "carriedPrincipal",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "hook",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IStratumHook"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "intentCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "intents",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "positionId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "internalType": "PoolId"
+      },
+      {
+        "name": "lp",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "toTranche",
+        "type": "uint8",
+        "internalType": "enum TrancheType"
+      },
+      {
+        "name": "conditionType",
+        "type": "uint8",
+        "internalType": "enum TrancheIntentRegistry.ConditionType"
+      },
+      {
+        "name": "threshold",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolIntentAt",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "internalType": "PoolId"
+      },
+      {
+        "name": "i",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolIntentCount",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "internalType": "PoolId"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "registerIntent",
+    "inputs": [
+      {
+        "name": "positionId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "internalType": "PoolId"
+      },
+      {
+        "name": "toTranche",
+        "type": "uint8",
+        "internalType": "enum TrancheType"
+      },
+      {
+        "name": "conditionType",
+        "type": "uint8",
+        "internalType": "enum TrancheIntentRegistry.ConditionType"
+      },
+      {
+        "name": "threshold",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "sweep",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "bytes32",
+        "internalType": "PoolId"
+      },
+      {
+        "name": "maxCount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "executed",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "IntentCancelled",
+    "inputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "IntentExecuted",
+    "inputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "positionId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "carriedPrincipal",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "IntentRegistered",
+    "inputs": [
+      {
+        "name": "intentId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "positionId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "lp",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "toTranche",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum TrancheType"
+      },
+      {
+        "name": "conditionType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum TrancheIntentRegistry.ConditionType"
+      },
+      {
+        "name": "threshold",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "ConditionNotMet",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "IntentInactive",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotIntentOwner",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PoolIdMismatch",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "PoolIntentCapReached",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "SameTranche",
+    "inputs": []
+  }
+]

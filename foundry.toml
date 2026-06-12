@@ -33,3 +33,9 @@ unichain_sepolia = { key = "${UNICHAIN_ETHERSCAN_API_KEY}", chain = 1301, url = 
 [rpc_endpoints]
 unichain_sepolia = "${UNICHAIN_SEPOLIA_RPC}"
 arbitrum_sepolia = "${ARBITRUM_SEPOLIA_RPC}"
+# Base Sepolia hosts the canonical Uniswap v4 PoolManager and a live Chainlink ETH/USD feed, used by the
+# fork tests to read real on-chain infra.
+base_sepolia = "${BASE_SEPOLIA_RPC}"
+# Reactive Network Lasna Omni testnet (chain id 5318007, Omni fork 2026-05-25).
+# Default RPC: https://lasna-omni-rpc.rnk.dev  Explorer: https://lasna-omni.reactscan.net
+reactive_lasna = "${REACTIVE_LASNA_RPC}"

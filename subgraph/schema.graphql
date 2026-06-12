@@ -1,0 +1,145 @@
+# STRATUM subgraph schema (D-7).
+# Indexes the on-chain event stream the hook and the intent registry already emit (every state transition is
+# an indexed event, per AGENTS.md), so a frontend, keeper, or analytics dashboard can read tranche state
+# without RPC fan-out. Read-only: the subgraph is a downstream observer; it changes no contract behavior.
+
+enum Tranche {
+  SENIOR
+  JUNIOR
+}
+
+enum IntentCondition {
+  COVERAGE_BELOW
+  COVERAGE_ABOVE
+  SENIOR_APY_BELOW
+}
+
+enum IntentStatus {
+  ACTIVE
+  EXECUTED
+  CANCELLED
+}
+
+"""A STRATUM pool: running tranche balances and the latest derived risk signals."""
+type Pool @entity(immutable: false) {
+  "PoolId (bytes32) as hex."
+  id: ID!
+  currentEpoch: BigInt!
+  "Cumulative senior principal ever deposited (gross, not net of withdrawals)."
+  seniorDeposited: BigInt!
+  juniorDeposited: BigInt!
+  juniorReserve: BigInt!
+  swapCount: BigInt!
+  feeAccumulated: BigInt!
+  lastCoverageRatioBps: Int!
+  lastStressLevel: Int!
+  "D-1: whether the pool realizes protocol fees as real tokens (a swap surcharge)."
+  protocolFeeRealization: Boolean!
+  "D-1: cumulative token0-denominated value of protocol fees realized as real tokens."
+  protocolFeeValueRealized: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+  positions: [Position!]! @derivedFrom(field: "pool")
+  epochs: [Epoch!]! @derivedFrom(field: "pool")
+  swaps: [Swap!]! @derivedFrom(field: "pool")
+}
+
+"""A tranche position keyed by the hook's position id (keccak(sender, ticks, salt))."""
+type Position @entity(immutable: false) {
+  id: ID!
+  pool: Pool!
+  owner: Bytes!
+  tranche: Tranche!
+  liquidity: BigInt!
+  open: Boolean!
+  entryEpoch: BigInt!
+  depositedAt: BigInt!
+  "Set when the position is fully removed/settled."
+  payout: BigInt
+  ilCharged: BigInt
+  settledAt: BigInt
+  migrationCount: BigInt!
+}
+
+"""A closed epoch's settlement outcome."""
+type Epoch @entity(immutable: false) {
+  "poolId-epoch."
+  id: ID!
+  pool: Pool!
+  epoch: BigInt!
+  seniorFunded: BigInt!
+  juniorSurplus: BigInt!
+  juniorReserve: BigInt!
+  closedAt: BigInt!
+}
+
+"""A swap's fee accounting snapshot (from SwapAccounted)."""
+type Swap @entity(immutable: true) {
+  "tx hash - log index."
+  id: ID!
+  pool: Pool!
+  epoch: BigInt!
+  feeAmount: BigInt!
+  volatilityEWMA: BigInt!
+  coverageRatioBps: Int!
+  timestamp: BigInt!
+  txHash: Bytes!
+}
+
+"""A coverage-stress signal crossing the notification threshold."""
+type CoverageStressEvent @entity(immutable: true) {
+  id: ID!
+  pool: Pool!
+  ratioBps: Int!
+  stressLevel: Int!
+  timestamp: BigInt!
+}
+
+"""An in-place tranche migration (FR-31)."""
+type Migration @entity(immutable: true) {
+  id: ID!
+  pool: Pool!
+  position: Position!
+  owner: Bytes!
+  fromTranche: Tranche!
+  toTranche: Tranche!
+  carriedPrincipal: BigInt!
+  realizedIL: BigInt!
+  timestamp: BigInt!
+}
+
+"""A protocol-fee realization (D-1, real tokens taken into the reserve)."""
+type ProtocolFeeRealizedEvent @entity(immutable: true) {
+  id: ID!
+  pool: Pool!
+  amount0: BigInt!
+  amount1: BigInt!
+  value0: BigInt!
+  timestamp: BigInt!
+}
+
+"""A protocol-fee collection (D-1, reserve paid out to a recipient)."""
+type ProtocolFeeCollection @entity(immutable: true) {
+  id: ID!
+  pool: Pool!
+  to: Bytes!
+  amount0: BigInt!
+  amount1: BigInt!
+  timestamp: BigInt!
+}
+
+"""An LP conditional tranche-migration intent (FR-30)."""
+type Intent @entity(immutable: false) {
+  "intentId."
+  id: ID!
+  positionId: Bytes!
+  position: Position
+  lp: Bytes!
+  toTranche: Tranche!
+  condition: IntentCondition!
+  threshold: BigInt!
+  status: IntentStatus!
+  carriedPrincipal: BigInt
+  registeredAt: BigInt!
+  resolvedAt: BigInt
+}

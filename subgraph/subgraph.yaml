@@ -1,0 +1,84 @@
+specVersion: 1.0.0
+description: STRATUM - Uniswap v4 credit-tranching hook. Indexes tranche
+  deposits, settlements, epoch closes, swap fee accounting, coverage stress,
+  in-place migrations, D-1 protocol-fee realization, and LP conditional intents.
+repository: https://github.com/guglxni/STRATUM
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: StratumHook
+    network: unichain-testnet
+    source:
+      abi: StratumHook
+      address: "0xe932923a5008721564021513838509211CF267c5"
+      startBlock: 54294529
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/stratum.ts
+      entities:
+        - Pool
+        - Position
+        - Epoch
+        - Swap
+        - CoverageStressEvent
+        - Migration
+        - ProtocolFeeRealizedEvent
+        - ProtocolFeeCollection
+      abis:
+        - name: StratumHook
+          file: ./abis/StratumHook.json
+      eventHandlers:
+        - event: TrancheDeposited(indexed bytes32,indexed bytes32,indexed
+            address,uint8,uint128,uint64)
+          handler: handleTrancheDeposited
+        - event: TrancheSettled(indexed bytes32,indexed bytes32,indexed
+            address,uint8,uint256,uint256)
+          handler: handleTrancheSettled
+        - event: SwapAccounted(indexed bytes32,indexed uint64,uint256,uint256,uint16)
+          handler: handleSwapAccounted
+        - event: EpochClosed(indexed bytes32,indexed uint64,uint256,uint256)
+          handler: handleEpochClosed
+        - event: JuniorReserveUpdated(indexed bytes32,indexed uint64,uint256)
+          handler: handleJuniorReserveUpdated
+        - event: CoverageStress(indexed bytes32,uint16,uint16)
+          handler: handleCoverageStress
+        - event: PositionMigrated(indexed bytes32,indexed bytes32,indexed
+            address,uint8,uint8,uint256,uint256)
+          handler: handlePositionMigrated
+        - event: ProtocolFeeRealizationSet(indexed bytes32,bool)
+          handler: handleProtocolFeeRealizationSet
+        - event: ProtocolFeeRealized(indexed bytes32,uint256,uint256,uint256)
+          handler: handleProtocolFeeRealized
+        - event: ProtocolFeesCollected(indexed bytes32,indexed address,uint256,uint256)
+          handler: handleProtocolFeesCollected
+        - event: ReserveFunded(indexed bytes32,uint256,uint256)
+          handler: handleReserveFunded
+  - kind: ethereum/contract
+    name: TrancheIntentRegistry
+    network: unichain-testnet
+    source:
+      abi: TrancheIntentRegistry
+      address: "0x7b428e660F7B991593445CF1F6b907c6A6Ec8CBc"
+      startBlock: 54301552
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      file: ./src/intents.ts
+      entities:
+        - Intent
+        - Position
+      abis:
+        - name: TrancheIntentRegistry
+          file: ./abis/TrancheIntentRegistry.json
+      eventHandlers:
+        - event: IntentRegistered(indexed uint256,indexed bytes32,indexed
+            address,uint8,uint8,uint256)
+          handler: handleIntentRegistered
+        - event: IntentExecuted(indexed uint256,indexed bytes32,uint256)
+          handler: handleIntentExecuted
+        - event: IntentCancelled(indexed uint256)
+          handler: handleIntentCancelled

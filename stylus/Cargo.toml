@@ -1,0 +1,55 @@
+[package]
+name = "stratum-stylus"
+version = "0.1.0"
+edition = "2021"
+description = "STRATUM Arbitrum Stylus matching engine and ML forward-volatility model (pure-Rust core)"
+license = "MIT"
+
+# The core (matching + ml_volatility) is dependency-free pure Rust so it compiles
+# and tests offline with a stock toolchain. The Stylus contract entrypoint is gated
+# behind the `stylus` feature and pulls the stylus-sdk only when that feature is on;
+# plain `cargo test` never touches it.
+[lib]
+name = "stratum_stylus"
+path = "src/lib.rs"
+# `cdylib` is required for the Stylus WASM artifact (the on-chain entrypoint); `lib` keeps the crate
+# usable as a normal Rust library for `cargo test` and for re-use by other Rust tooling.
+crate-type = ["lib", "cdylib"]
+
+# Bin target used ONLY by `cargo stylus export-abi` / `constructor` (which `cargo stylus deploy`
+# invokes via `cargo run --features export-abi`). It is `no_main` and inert in every other build,
+# so it neither changes the deployed cdylib WASM nor affects `cargo test`. See src/main.rs.
+[[bin]]
+name = "stratum-stylus-abi"
+path = "src/main.rs"
+# No test/bench harness: under `cargo test` (no features) this bin is `no_main`, so the libtest
+# harness has nothing to link against. Disabling these keeps `cargo test` building only the lib.
+test = false
+bench = false
+doctest = false
+
+[features]
+# Plain `cargo test` uses no features: the pure-Rust core (matching + ml_volatility) needs no deps.
+default = []
+# Enables the on-chain Stylus contract wrapper in src/stylus_entrypoint.rs.
+# Requires the `cargo stylus` toolchain and the stylus-sdk; not needed for `cargo test`.
+# `mini-alloc` gives the WASM a tiny bump allocator (smaller artifact, fits the 24KB limit).
+stylus = ["dep:stylus-sdk", "dep:alloy-primitives", "dep:alloy-sol-types", "stylus-sdk/mini-alloc"]
+# `cargo stylus export-abi` support (generates a main that prints the Solidity ABI).
+export-abi = ["stylus", "stylus-sdk/export-abi"]
+# Selector for the SDK's optional cross-contract client codegen cfg (silences its cfg lint).
+contract-client-gen = []
+
+[dependencies]
+# All optional: only compiled in when the `stylus` feature is requested.
+# Pinned to the stylus-sdk that matches cargo-stylus 0.10.7. alloy-primitives /
+# alloy-sol-types are pinned to the 0.8 line stylus-sdk 0.10 re-exports and builds against.
+stylus-sdk = { version = "0.10", optional = true }
+alloy-primitives = { version = "0.8", optional = true }
+alloy-sol-types = { version = "0.8", optional = true }
+
+[profile.release]
+codegen-units = 1
+panic = "abort"
+opt-level = "z"
+lto = true

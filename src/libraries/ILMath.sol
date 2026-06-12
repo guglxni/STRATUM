@@ -55,7 +55,17 @@ library ILMath {
     function valueInToken0(uint256 amount0, uint256 amount1, uint160 sqrtPriceX96) public pure returns (uint256) {
         if (sqrtPriceX96 == 0) return amount0;
         uint256 priceX96 = FullMath.mulDiv(uint256(sqrtPriceX96), uint256(sqrtPriceX96), FixedPoint96.Q96);
-        uint256 amount1As0 = FullMath.mulDiv(amount1, FixedPoint96.Q96, priceX96);
+        uint256 amount1As0;
+        if (priceX96 == 0) {
+            // M-10: for sqrtPriceX96 < 2^48 the squared price truncates to 0 (a valid range above
+            // MIN_SQRT_PRICE), which would divide-by-zero below. Use the precision-preserving two-step
+            // conversion (amount1 * Q96 / sqrtP) * Q96 / sqrtP, which never forms the truncated priceX96.
+            amount1As0 = FullMath.mulDiv(
+                FullMath.mulDiv(amount1, FixedPoint96.Q96, sqrtPriceX96), FixedPoint96.Q96, sqrtPriceX96
+            );
+        } else {
+            amount1As0 = FullMath.mulDiv(amount1, FixedPoint96.Q96, priceX96);
+        }
         return amount0 + amount1As0;
     }
 

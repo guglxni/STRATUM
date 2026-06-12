@@ -51,6 +51,12 @@ struct PoolTrancheState {
     uint256 epochStartTimestamp;
     uint256 seniorFeePerShareX128;
     uint256 juniorFeePerShareX128;
+    // Graduated coverage-defense band (P1). Both >= minCoverageRatioBps and target >= trigger.
+    // When coverage decays below `coverageTriggerBps` (but is still above the hard floor), an opt-in
+    // CoverageDefender peripheral begins proportional remediation, stopping once coverage recovers to
+    // `coverageTargetBps`. Setting both equal to minCoverageRatioBps disables the band (no early warning).
+    uint16 coverageTriggerBps;
+    uint16 coverageTargetBps;
 }
 
 struct PoolInitParams {
@@ -63,4 +69,8 @@ struct PoolInitParams {
     uint16 maxFeeBps;
     uint16 protocolFeeBps;
     address peripheralRegistry;
+    // Graduated coverage-defense band (P1). Require minCoverageRatioBps <= coverageTriggerBps <=
+    // coverageTargetBps. Set both equal to minCoverageRatioBps to disable graduated remediation.
+    uint16 coverageTriggerBps;
+    uint16 coverageTargetBps;
 }

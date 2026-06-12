@@ -8,5 +8,8 @@ library StratumFlags {
         Hooks.BEFORE_INITIALIZE_FLAG | Hooks.AFTER_ADD_LIQUIDITY_FLAG | Hooks.BEFORE_REMOVE_LIQUIDITY_FLAG
             | Hooks.AFTER_REMOVE_LIQUIDITY_FLAG | Hooks.AFTER_REMOVE_LIQUIDITY_RETURNS_DELTA_FLAG
             | Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG
+            // D-1: protocol-fee realization returns a delta from afterSwap. Adding this bit changes the mined
+            // hook address, so every deployment (and every test that mines a hook) picks it up centrally here.
+            | Hooks.AFTER_SWAP_RETURNS_DELTA_FLAG
     );
 }

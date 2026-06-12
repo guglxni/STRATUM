@@ -1,0 +1,12 @@
+{
+  "unichain-testnet": {
+    "StratumHook": {
+      "address": "0xe932923a5008721564021513838509211CF267c5",
+      "startBlock": 54294529
+    },
+    "TrancheIntentRegistry": {
+      "address": "0x7b428e660F7B991593445CF1F6b907c6A6Ec8CBc",
+      "startBlock": 54301552
+    }
+  }
+}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import { Test } from "forge-std/Test.sol";
+import { Test, Vm } from "forge-std/Test.sol";
 import { Deployers } from "@uniswap/v4-core/test/utils/Deployers.sol";
 import { Hooks } from "@uniswap/v4-core/src/libraries/Hooks.sol";
 import { LPFeeLibrary } from "@uniswap/v4-core/src/libraries/LPFeeLibrary.sol";
@@ -46,7 +46,9 @@ contract StratumHookIntegrationTest is Test, Deployers {
             minFeeBps: 5,
             maxFeeBps: 200,
             protocolFeeBps: 100,
-            peripheralRegistry: address(0)
+            peripheralRegistry: address(0),
+            coverageTriggerBps: 3000,
+            coverageTargetBps: 3000
         });
 
         (address hookAddr, bytes32 salt) = HookMiner.find(
@@ -399,6 +401,11 @@ contract StratumHookIntegrationTest is Test, Deployers {
             })
         );
 
+        // A-06: the senior exit must happen in a LATER block than the price move. The block-start anchor
+        // guard intentionally neutralizes same-block (sandwich-shaped) make-whole draws; a genuine market
+        // move persists across blocks, which this roll models.
+        vm.roll(block.number + 1);
+
         // The senior LP (test contract receives the router's settled tokens) exits and is topped up.
         uint256 bal0Before = MockERC20(Currency.unwrap(currency0)).balanceOf(address(this));
         uint256 bal1Before = MockERC20(Currency.unwrap(currency1)).balanceOf(address(this));
@@ -465,5 +472,188 @@ contract StratumHookIntegrationTest is Test, Deployers {
         // The per-currency clawback executed and was clamped to the currency0 leg.
         uint256 hookBal0After = MockERC20(Currency.unwrap(currency0)).balanceOf(address(hook));
         assertGt(hookBal0After, hookBal0Before, "hook must reclaim the IL clawback in currency0");
+    }
+
+    /// @notice A-05: only the pool creator (preparePool caller) may consume the prepared parameters at
+    ///         PoolManager.initialize. A third party must not be able to choose the initial sqrtPrice.
+    function test_A05_initialize_onlyPoolCreator() public {
+        PoolKey memory keyB = PoolKey({
+            currency0: currency0,
+            currency1: currency1,
+            fee: LPFeeLibrary.DYNAMIC_FEE_FLAG,
+            tickSpacing: 120,
+            hooks: IHooks(address(hook))
+        });
+        hook.preparePool(keyB, defaultParams);
+
+        // A stranger front-running initialize with a skewed price must revert inside beforeInitialize.
+        vm.prank(address(0xBAD));
+        vm.expectRevert(); // Unauthorized, wrapped by the PoolManager's hook-revert bubbling
+        manager.initialize(keyB, TickMath.getSqrtPriceAtTick(5000));
+
+        // The creator initializes normally.
+        manager.initialize(keyB, SQRT_PRICE_1_1);
+        assertTrue(hook.poolState(keyB.toId()).initialized, "creator-initialized pool is live");
+    }
+
+    /// @notice A-04: a token1-specified swap books its fee converted into the token0 numeraire, so opposite
+    ///         swap directions of equal value book (approximately) equal fees at a 1:1 price.
+    function test_A04_feeBookedInToken0Numeraire_bothDirections() public {
+        PoolId id = key.toId();
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: 1e21, salt: bytes32("a04")
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("a04"))
+        );
+
+        // exactIn token0 (zeroForOne): specified currency IS token0.
+        swapRouterNoChecks.swap(
+            key,
+            IPoolManager.SwapParams({
+                zeroForOne: true, amountSpecified: -100_000, sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(-120)
+            })
+        );
+        uint256 feesAfterDir0 = hook.poolState(id).epochAccumulatedFees;
+        assertGt(feesAfterDir0, 0, "token0-specified swap booked a fee");
+
+        // exactIn token1 (oneForZero): specified currency is token1; the booked fee must be converted.
+        swapRouterNoChecks.swap(
+            key,
+            IPoolManager.SwapParams({
+                zeroForOne: false, amountSpecified: -100_000, sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(120)
+            })
+        );
+        uint256 feeDir1 = hook.poolState(id).epochAccumulatedFees - feesAfterDir0;
+        assertGt(feeDir1, 0, "token1-specified swap booked a fee");
+
+        // At ~1:1 price the converted token1 fee must be within 2% of the token0 fee, not drift with price.
+        assertApproxEqRel(feeDir1, feesAfterDir0, 0.02e18, "A-04: token1 fee converted to token0 numeraire");
+    }
+
+    /// @notice A-06: an atomic (same-block) crash + senior exit must NOT draw the make-whole reserve, because
+    ///         settlement re-values the withdrawal against the block-start price anchor. This is the sandwich
+    ///         shape: swap down -> senior withdraws (reserve pays gap) -> swap back. The cross-block legit
+    ///         path is pinned by test_RH1_seniorMakeWhole_paysRealTokensFromReserve.
+    function test_A06_sameBlockSandwich_cannotDrainMakeWholeReserve() public {
+        PoolId id = key.toId();
+
+        // Same shape as RH1: two juniors fund coverage, one exits after a crash to fund the reserve.
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: 1e21, salt: bytes32("a06-jA")
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("a06-jA"))
+        );
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: 1e21, salt: bytes32("a06-jB")
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("a06-jB"))
+        );
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: 2e20, salt: bytes32("a06-s")
+            }),
+            abi.encode(TrancheType.SENIOR, bytes32("a06-s"))
+        );
+
+        // Fund the reserve in an EARLIER block (crash + junior clawback), then roll.
+        swapRouterNoChecks.swap(
+            key,
+            IPoolManager.SwapParams({
+                zeroForOne: true, amountSpecified: -int256(1e25), sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(-5940)
+            })
+        );
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: -1e21, salt: bytes32("a06-jA")
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("a06-jA"))
+        );
+        (uint256 r0, uint256 r1) = hook.reserveBalances(id);
+        assertTrue(r0 > 0 || r1 > 0, "reserve funded by junior clawback");
+        vm.roll(block.number + 1);
+
+        // SAME BLOCK now: pump the price (sandwich front-leg; this records the pre-pump anchor), then the
+        // senior exits. The anchor-guarded settlement must not pay a make-whole from the reserve.
+        swapRouterNoChecks.swap(
+            key,
+            IPoolManager.SwapParams({
+                zeroForOne: false, amountSpecified: -int256(1e25), sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(5940)
+            })
+        );
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: -2e20, salt: bytes32("a06-s")
+            }),
+            abi.encode(TrancheType.SENIOR, bytes32("a06-s"))
+        );
+
+        (uint256 r0After, uint256 r1After) = hook.reserveBalances(id);
+        assertGe(r0After, r0, "A-06: same-block sandwich must not draw reserve0");
+        assertGe(r1After, r1, "A-06: same-block sandwich must not draw reserve1");
+    }
+
+    /// @notice R2-01 (mirror of A-06): a junior cannot self-sandwich its exit - crash happens in an earlier
+    ///         block (real IL), then the junior pumps the price back toward entry and exits in the same
+    ///         block. The anchor-guarded settlement charges max(IL at exit, IL at anchor), so the clawback
+    ///         still fires even though the spot price at exit shows (almost) no IL.
+    function test_R201_juniorSelfSandwich_cannotSuppressILClawback() public {
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: 1e21, salt: bytes32("r201-j")
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("r201-j"))
+        );
+
+        // Block N: genuine crash. The junior position now carries real IL.
+        swapRouterNoChecks.swap(
+            key,
+            IPoolManager.SwapParams({
+                zeroForOne: true, amountSpecified: -int256(1e25), sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(-5940)
+            })
+        );
+        vm.roll(block.number + 1);
+
+        // Block N+1: self-sandwich front-leg pumps the price back toward entry (the swap records the
+        // crashed price as this block's anchor first), then the junior exits at the manipulated spot.
+        swapRouterNoChecks.swap(
+            key,
+            IPoolManager.SwapParams({
+                zeroForOne: false, amountSpecified: -int256(1e25), sqrtPriceLimitX96: TickMath.getSqrtPriceAtTick(0)
+            })
+        );
+
+        vm.recordLogs();
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: -6000, tickUpper: 6000, liquidityDelta: -1e21, salt: bytes32("r201-j")
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("r201-j"))
+        );
+
+        // The anchor-guarded IL must be charged despite the spot price sitting back near entry.
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        bytes32 sig = keccak256("TrancheSettled(bytes32,bytes32,address,uint8,uint256,uint256)");
+        uint256 ilCharged = 0;
+        bool found = false;
+        for (uint256 i = 0; i < logs.length; i++) {
+            if (logs[i].topics[0] == sig) {
+                (,, ilCharged) = abi.decode(logs[i].data, (uint8, uint256, uint256));
+                found = true;
+                break;
+            }
+        }
+        assertTrue(found, "TrancheSettled emitted");
+        assertGt(ilCharged, 0, "R2-01: junior self-sandwich must not suppress the IL charge");
     }
 }

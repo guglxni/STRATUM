@@ -1,0 +1,19 @@
+[package]
+name = "stratum-brevis"
+version = "0.1.0"
+edition = "2021"
+description = "STRATUM Brevis prover-side witness computation: time-weighted contribution, per-position IL attribution, and aggregate cross-chain reserve solvency. Pure Rust, no network deps. The witness math is real and tested; the SNARK backend (Brevis SDK / gnark) is the integration step behind the optional `snark` feature."
+license = "MIT"
+
+[lib]
+name = "stratum_brevis"
+path = "src/lib.rs"
+
+[features]
+# The actual Groth16 / Brevis-SDK gadget binding. Off by default: the witness
+# math compiles and tests without any proving backend or network access.
+snark = []
+
+# Intentionally no dependencies. All 256-bit math (mulDiv, getSqrtPriceAtTick)
+# is implemented in pure Rust in src/u256.rs so `cargo test` runs fully offline.
+[dependencies]

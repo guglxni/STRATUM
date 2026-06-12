@@ -1,0 +1,29 @@
+[package]
+name = "stratum-operator"
+version = "0.1.0"
+edition = "2021"
+description = "STRATUM EigenLayer AVS operator node: LVR auction clearing and ECDSA match attestation signing"
+license = "MIT"
+
+[lib]
+name = "stratum_operator"
+path = "src/lib.rs"
+
+[[bin]]
+name = "stratum-operator"
+path = "src/main.rs"
+
+[dependencies]
+# Pure-Rust, offline-buildable cryptography for the verifiable core.
+k256 = { version = "0.13", features = ["ecdsa", "arithmetic"] }
+tiny-keccak = { version = "2.0", features = ["keccak"] }
+hex = "0.4"
+
+[features]
+default = []
+# Gates the live operator loop's on-chain broadcast (EigenLayer attestation submit + LVR
+# receiveYield). The chain-I/O wiring (alloy/ethers providers + funded signer) is documented in
+# the README but intentionally not bundled, so the crate builds and tests fully offline.
+node = []
+
+[dev-dependencies]

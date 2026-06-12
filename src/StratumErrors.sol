@@ -17,4 +17,8 @@ library StratumErrors {
     error PositionAlreadyExists();
     error ClaimAtSettlement();
     error Unauthorized();
+    error CoverageBandInvalid();
+    error LengthMismatch();
+    error MigrationToSameTranche();
+    error PartialRemovalNotSupported();
 }

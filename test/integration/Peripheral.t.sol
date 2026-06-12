@@ -16,6 +16,8 @@ import { PoolInitParams, TrancheType } from "../../src/StratumTypes.sol";
 import { ReserveBalancer } from "../../src/peripherals/reactive/ReserveBalancer.sol";
 import { IReserveRebalanceTarget } from "../../src/peripherals/reactive/IReserveRebalanceTarget.sol";
 import { EpochSettler } from "../../src/peripherals/reactive/EpochSettler.sol";
+import { IReactive } from "../../src/peripherals/reactive/IReactive.sol";
+import { AbstractReactive } from "../../src/peripherals/reactive/AbstractReactive.sol";
 import { HookMiner } from "../utils/HookMiner.sol";
 import { StratumFlags } from "../utils/StratumFlags.sol";
 
@@ -86,7 +88,9 @@ contract PeripheralTest is Test, Deployers {
             minFeeBps: 5,
             maxFeeBps: 200,
             protocolFeeBps: 100,
-            peripheralRegistry: registry
+            peripheralRegistry: registry,
+            coverageTriggerBps: 3000,
+            coverageTargetBps: 3000
         });
         (address hookAddr, bytes32 salt) = HookMiner.find(
             address(this), StratumFlags.STRATUM_HOOK_FLAGS, type(StratumHook).creationCode, abi.encode(address(manager))
@@ -164,18 +168,32 @@ contract PeripheralTest is Test, Deployers {
 
     function test_reserveBalancer_divergenceTriggersRebalance() public {
         _deployHookWithRegistry(address(0));
-        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 2000); // 20% threshold
+        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 2000, block.chainid); // 20% threshold
         MockRebalanceTarget target = new MockRebalanceTarget();
         rb.configure(IReserveRebalanceTarget(address(target)), address(0));
 
         // Two pools with skewed reserves: pool A funded, pool B empty -> large divergence.
+        // H-02 removed the surplus->juniorReserve double-credit, so the buffer is now funded by the FR-14
+        // forfeit path: withdraw the junior right after epoch close (vesting phase ~0) so its harvested
+        // earnings forfeit into juniorReserve.
         PoolId a = key.toId();
         modifyLiquidityRouter.modifyLiquidity(key, LIQUIDITY_PARAMS, abi.encode(TrancheType.JUNIOR, bytes32("ja")));
         IPoolManager.SwapParams memory s = IPoolManager.SwapParams({
             zeroForOne: true, amountSpecified: -1_000_000, sqrtPriceLimitX96: SQRT_PRICE_1_2
         });
         swapRouterNoChecks.swap(key, s);
-        _closeAfterEpoch(a); // surplus credits pool A's juniorReserve
+        _closeAfterEpoch(a); // surplus credited to juniorFeePerShareX128
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: LIQUIDITY_PARAMS.tickLower,
+                tickUpper: LIQUIDITY_PARAMS.tickUpper,
+                liquidityDelta: -LIQUIDITY_PARAMS.liquidityDelta,
+                salt: LIQUIDITY_PARAMS.salt
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("ja"))
+        ); // unvested earnings forfeit -> pool A's juniorReserve > 0 (FR-14)
+        assertGt(hook.poolState(a).juniorReserve, 0, "forfeit funded pool A's junior reserve");
 
         // Set up a second pool B (junior-only, no swaps) with zero reserve.
         PoolKey memory keyB = PoolKey({
@@ -198,7 +216,7 @@ contract PeripheralTest is Test, Deployers {
 
     function test_reserveBalancer_inertWhenTargetUnset() public {
         _deployHookWithRegistry(address(0));
-        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 100);
+        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 100, block.chainid);
         PoolId id = key.toId();
         modifyLiquidityRouter.modifyLiquidity(key, LIQUIDITY_PARAMS, abi.encode(TrancheType.JUNIOR, bytes32("j")));
         // No target configured: observing must not revert and fires no external call.
@@ -208,7 +226,7 @@ contract PeripheralTest is Test, Deployers {
 
     function test_reserveBalancer_onlyOperator() public {
         _deployHookWithRegistry(address(0));
-        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 100);
+        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 100, block.chainid);
         PoolId id = key.toId();
         vm.prank(address(0xBEEF));
         vm.expectRevert(ReserveBalancer.OnlyOperator.selector);
@@ -219,7 +237,7 @@ contract PeripheralTest is Test, Deployers {
 
     function test_epochSettler_operatorAndReactivePaths() public {
         _deployHookWithRegistry(address(0));
-        EpochSettler settler = new EpochSettler(IStratumHook(address(hook)), address(this));
+        EpochSettler settler = new EpochSettler(IStratumHook(address(hook)), address(this), block.chainid);
         PoolId id = key.toId();
         modifyLiquidityRouter.modifyLiquidity(key, LIQUIDITY_PARAMS, abi.encode(TrancheType.JUNIOR, bytes32("j")));
 
@@ -239,10 +257,103 @@ contract PeripheralTest is Test, Deployers {
         // Deploy the settler first at a deterministic address, then point the hook's registry at it.
         // Simplest: deploy hook with registry==address(0), then a settler, then a second hook isn't needed;
         // instead verify the IPeripheral surface directly.
-        EpochSettler settler = new EpochSettler(IStratumHook(address(0)), address(this));
+        EpochSettler settler = new EpochSettler(IStratumHook(address(0)), address(this), block.chainid);
         bytes memory out = settler.onEpochClose(PoolId.wrap(bytes32(uint256(1))), 7, bytes(""));
         assertEq(out.length, 0, "onEpochClose returns empty, core discards it");
         assertTrue(settler.isEnabled(), "settler reports enabled");
         assertEq(settler.kind(), keccak256("stratum.reactive.epoch"));
+    }
+
+    // --- C2: real Reactive react() -> Callback flow (FR-15) ---
+
+    function test_C2_react_schedulesCallbackToReactiveCallback() public {
+        _deployHookWithRegistry(address(0));
+        EpochSettler settler = new EpochSettler(IStratumHook(address(hook)), address(this), block.chainid);
+        PoolId id = key.toId();
+
+        // Simulate the Reactive system contract delivering a hook log to the ReactVM. poolId is topic_1.
+        IReactive.LogRecord memory log;
+        log.chainId = block.chainid;
+        log._contract = address(hook);
+        log.topic_1 = uint256(PoolId.unwrap(id));
+
+        // react() must emit a Callback scheduling reactiveCallback(poolId) on the origin chain (no keeper).
+        bytes memory expected = abi.encodeWithSelector(EpochSettler.reactiveCallback.selector, id);
+        vm.expectEmit(true, true, true, true);
+        emit AbstractReactive.Callback(block.chainid, address(settler), 400_000, expected);
+        settler.react(log);
+    }
+
+    function test_C2_reserveBalancer_reactSchedulesObservation() public {
+        _deployHookWithRegistry(address(0));
+        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 2000, block.chainid);
+        PoolId id = key.toId();
+
+        IReactive.LogRecord memory log;
+        log.topic_1 = uint256(PoolId.unwrap(id));
+
+        bytes memory expected = abi.encodeWithSelector(ReserveBalancer.reactiveCallback.selector, id);
+        vm.expectEmit(true, true, true, true);
+        emit AbstractReactive.Callback(block.chainid, address(rb), 350_000, expected);
+        rb.react(log);
+    }
+
+    // --- P2: idempotent hedging (at most one request per pool per epoch) ---
+
+    function test_reserveBalancer_idempotentPerEpoch() public {
+        _deployHookWithRegistry(address(0));
+        ReserveBalancer rb = new ReserveBalancer(IStratumHook(address(hook)), address(this), 2000, block.chainid);
+        MockRebalanceTarget target = new MockRebalanceTarget();
+        rb.configure(IReserveRebalanceTarget(address(target)), address(0));
+
+        // Pool A's juniorReserve funded via the FR-14 forfeit path (post-H-02, surplus no longer credits the
+        // buffer directly): swap fees -> epoch close -> immediate junior withdrawal forfeits unvested earnings.
+        PoolId a = key.toId();
+        modifyLiquidityRouter.modifyLiquidity(key, LIQUIDITY_PARAMS, abi.encode(TrancheType.JUNIOR, bytes32("ja")));
+        IPoolManager.SwapParams memory s = IPoolManager.SwapParams({
+            zeroForOne: true, amountSpecified: -1_000_000, sqrtPriceLimitX96: SQRT_PRICE_1_2
+        });
+        swapRouterNoChecks.swap(key, s);
+        _closeAfterEpoch(a); // A advances to epoch 1
+        modifyLiquidityRouter.modifyLiquidity(
+            key,
+            IPoolManager.ModifyLiquidityParams({
+                tickLower: LIQUIDITY_PARAMS.tickLower,
+                tickUpper: LIQUIDITY_PARAMS.tickUpper,
+                liquidityDelta: -LIQUIDITY_PARAMS.liquidityDelta,
+                salt: LIQUIDITY_PARAMS.salt
+            }),
+            abi.encode(TrancheType.JUNIOR, bytes32("ja"))
+        ); // forfeit funds A's juniorReserve (FR-14)
+        assertGt(hook.poolState(a).juniorReserve, 0, "forfeit funded pool A's junior reserve");
+
+        PoolKey memory keyB = PoolKey({
+            currency0: currency0,
+            currency1: currency1,
+            fee: LPFeeLibrary.DYNAMIC_FEE_FLAG,
+            tickSpacing: 120,
+            hooks: IHooks(address(hook))
+        });
+        hook.preparePool(keyB, params);
+        manager.initialize(keyB, SQRT_PRICE_1_1);
+        PoolId b = keyB.toId();
+        modifyLiquidityRouter.modifyLiquidity(keyB, LIQUIDITY_PARAMS, abi.encode(TrancheType.JUNIOR, bytes32("jb")));
+
+        rb.observeReserve(b);
+        rb.observeReserve(a); // A diverges -> first request fires
+        assertEq(target.calls(), 1, "first divergence fired exactly one request");
+        assertEq(rb.rebalanceNonce(a), 1, "nonce advanced to 1");
+
+        // Same epoch: observing A again must NOT double-hedge (netted into the in-flight request).
+        rb.observeReserve(a);
+        assertEq(target.calls(), 1, "same-epoch re-observe did not double-hedge");
+        assertEq(rb.rebalanceNonce(a), 1, "nonce unchanged within the epoch");
+
+        // Next epoch: a fresh divergence is allowed to fire again (retry/re-hedge path). Only A is re-observed
+        // (B stays cached at zero in the average; re-observing an empty pool would self-evict it).
+        _closeAfterEpoch(a);
+        rb.observeReserve(a);
+        assertEq(target.calls(), 2, "next epoch allowed a fresh request");
+        assertEq(rb.rebalanceNonce(a), 2, "nonce advanced to 2 in the new epoch");
     }
 }

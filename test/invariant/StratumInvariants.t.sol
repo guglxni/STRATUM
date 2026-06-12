@@ -176,7 +176,9 @@ contract StratumEpochInvariantTest is Test, Deployers {
             minFeeBps: 5,
             maxFeeBps: 200,
             protocolFeeBps: 100,
-            peripheralRegistry: address(0)
+            peripheralRegistry: address(0),
+            coverageTriggerBps: 3000,
+            coverageTargetBps: 3000
         });
 
         (address hookAddr, bytes32 salt) = HookMiner.find(
