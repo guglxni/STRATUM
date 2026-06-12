@@ -9,7 +9,17 @@
   <img src="https://img.shields.io/badge/Network-Unichain%20Sepolia-7c3aed" alt="Unichain Sepolia"/>
   <img src="https://img.shields.io/badge/Hook-Uniswap%20v4-ff007a" alt="Uniswap v4"/>
   <img src="https://img.shields.io/badge/Reactive%20Network-Live-22c55e" alt="Reactive Network Live"/>
-  <a href="https://stratum-nu-dusky.vercel.app"><img src="https://img.shields.io/badge/Live%20Demo-Vercel-000000" alt="Live Demo on Vercel"/></a>
+  <a href="https://stratum-nu-dusky.vercel.app/"><img src="https://img.shields.io/badge/Live%20Demo-Vercel-000000" alt="Live Demo on Vercel"/></a>
+</p>
+
+<p align="center">
+  <a href="https://stratum-nu-dusky.vercel.app/"><strong>https://stratum-nu-dusky.vercel.app/</strong></a>
+</p>
+
+<p align="center">
+  <a href="https://uniswap.org/"><img src="docs/assets/sponsor-uniswap.svg" alt="Built on Uniswap v4" width="240"/></a>
+  &nbsp;&nbsp;
+  <a href="https://reactive.network/"><img src="docs/assets/sponsor-reactive.svg" alt="Powered by Reactive Network" width="240"/></a>
 </p>
 
 <p align="center">
@@ -18,10 +28,10 @@
   Junior LPs absorb IL first in exchange for leveraged fee exposure.<br/>
   No oracle. No underwriter. No borrowed capital.<br/>
   <br/>
-  <a href="https://stratum-nu-dusky.vercel.app"><strong>Launch live demo →</strong></a>
+  <a href="https://stratum-nu-dusky.vercel.app/"><strong>Launch live demo →</strong></a>
 </p>
 
-> 🎬 **Demo video:** [watch on Google Drive](https://drive.google.com/file/d/11uxTQE6f2XLT4vDP6GzWFl__IVvxkUyv/view?usp=drive_link) &nbsp;·&nbsp; 📺 **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; 🌐 **Live demo:** [stratum-nu-dusky.vercel.app](https://stratum-nu-dusky.vercel.app)
+> 🎬 **Demo video:** [watch on Google Drive](https://drive.google.com/file/d/11uxTQE6f2XLT4vDP6GzWFl__IVvxkUyv/view?usp=drive_link) &nbsp;·&nbsp; 📺 **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; 🌐 **Live demo:** [stratum-nu-dusky.vercel.app](https://stratum-nu-dusky.vercel.app/)
 >
 > **Live addresses:** [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) &nbsp;·&nbsp; **Judge guide:** [docs/JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md) &nbsp;·&nbsp; **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
