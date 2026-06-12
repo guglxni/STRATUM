@@ -60,6 +60,12 @@ cast call 0xe932923a5008721564021513838509211CF267c5 \
 
 ## 3. Live deployment manifest
 
+The stack spans four chains. This map shows what is deployed where before the address tables below:
+
+<p align="center">
+  <img src="diagrams/svg/cross-chain-topology.svg" alt="STRATUM cross-chain topology across Unichain Sepolia, Reactive Lasna, Arbitrum Sepolia, and Ethereum Sepolia" width="880"/>
+</p>
+
 ### Core (Unichain Sepolia, chain 1301)
 
 | Contract | Address | Explorer |

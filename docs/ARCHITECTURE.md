@@ -15,6 +15,10 @@ This is the priority-waterfall and subordination structure used in TradFi struct
 
 STRATUM is organized as a core plus optional peripherals. The core is self-sufficient. Peripherals add capability and are coordinated by an autonomic layer.
 
+<p align="center">
+  <img src="diagrams/svg/stratum-architecture.svg" alt="STRATUM architecture: core hook always on, Reactive coordination, optional peripherals behind IPeripheral" width="760"/>
+</p>
+
 ### Diagrams (Mermaid + draw.io)
 
 Full catalog and render instructions: [diagrams/README.md](diagrams/README.md). Regenerate SVG + PNG:
@@ -28,7 +32,10 @@ brew install --cask drawio   # if needed
 
 | View | Source | SVG |
 |------|--------|-----|
-| System layers | [system-layers.mmd](diagrams/mermaid/system-layers.mmd) | ![System layers](diagrams/svg/system-layers.svg) |
+| System architecture (core / reactive / peripherals) | [stratum-architecture.drawio](diagrams/drawio/stratum-architecture.drawio) | ![System architecture](diagrams/svg/stratum-architecture.svg) |
+| Cross-chain topology (what runs where) | [cross-chain-topology.drawio](diagrams/drawio/cross-chain-topology.drawio) | ![Cross-chain topology](diagrams/svg/cross-chain-topology.svg) |
+| Tranche lifecycle (deposit → settle) | [tranche-lifecycle.drawio](diagrams/drawio/tranche-lifecycle.drawio) | ![Tranche lifecycle](diagrams/svg/tranche-lifecycle.svg) |
+| Reactive event → callback loop | [reactive-flow.drawio](diagrams/drawio/reactive-flow.drawio) | ![Reactive flow](diagrams/svg/reactive-flow.svg) |
 | Prize-track canvas (editable) | [stratum-system.drawio](diagrams/drawio/stratum-system.drawio) | ![System canvas](diagrams/svg/stratum-system.svg) |
 | Tranche economics | [tranche-economics.mmd](diagrams/mermaid/tranche-economics.mmd) | ![Tranche economics](diagrams/svg/tranche-economics.svg) |
 | Testnet deploy | [deploy-testnet.mmd](diagrams/mermaid/deploy-testnet.mmd) | ![Deploy](diagrams/svg/deploy-testnet.svg) |
@@ -47,18 +54,19 @@ brew install --cask drawio   # if needed
 
 | View | Source | SVG |
 |------|--------|-----|
-| Fee → epoch → tranches | [fee-waterfall.mmd](diagrams/mermaid/fee-waterfall.mmd) | ![Fee waterfall](diagrams/svg/fee-waterfall.svg) |
+| Fee → epoch → tranches | [fee-waterfall.drawio](diagrams/drawio/fee-waterfall.drawio) | ![Fee waterfall](diagrams/svg/fee-waterfall.svg) |
 | Waterfall split weights | [waterfall-split.mmd](diagrams/mermaid/waterfall-split.mmd) | ![Split](diagrams/svg/waterfall-split.svg) |
-| Priority waterfall (editable) | [tranche-waterfall.drawio](diagrams/drawio/tranche-waterfall.drawio) | ![Waterfall](diagrams/svg/tranche-waterfall.svg) |
+| Coverage ratio & stress control | [coverage-ratio.drawio](diagrams/drawio/coverage-ratio.drawio) | ![Coverage](diagrams/svg/coverage-ratio.svg) |
 | Epoch lifecycle | [epoch-lifecycle.mmd](diagrams/mermaid/epoch-lifecycle.mmd) | ![Epoch](diagrams/svg/epoch-lifecycle.svg) |
-| Coverage & epoch control | [coverage-ratio.mmd](diagrams/mermaid/coverage-ratio.mmd) | ![Coverage](diagrams/svg/coverage-ratio.svg) |
-| Coverage + reserve | [coverage-epoch.drawio](diagrams/drawio/coverage-epoch.drawio) | ![Coverage epoch](diagrams/svg/coverage-epoch.svg) |
+| Coverage + reserve (editable) | [coverage-epoch.drawio](diagrams/drawio/coverage-epoch.drawio) | ![Coverage epoch](diagrams/svg/coverage-epoch.svg) |
 
 #### Settlement & assurance
 
 | View | Source | SVG |
 |------|--------|-----|
-| Withdrawal settlement | [settlement-flow.mmd](diagrams/mermaid/settlement-flow.mmd) | ![Settlement](diagrams/svg/settlement-flow.svg) |
+| Settlement decision tree (senior / junior) | [settlement-decision.drawio](diagrams/drawio/settlement-decision.drawio) | ![Settlement decision](diagrams/svg/settlement-decision.svg) |
+| IL absorption waterfall | [il-absorption.drawio](diagrams/drawio/il-absorption.drawio) | ![IL absorption](diagrams/svg/il-absorption.svg) |
+| Withdrawal settlement (detail) | [settlement-flow.mmd](diagrams/mermaid/settlement-flow.mmd) | ![Settlement](diagrams/svg/settlement-flow.svg) |
 | Invariants mind map | [invariants.mmd](diagrams/mermaid/invariants.mmd) | ![Invariants](diagrams/svg/invariants.svg) |
 
 PNG exports for slides live in `diagrams/png/` (same basenames).

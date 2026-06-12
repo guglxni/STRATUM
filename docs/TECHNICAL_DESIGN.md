@@ -135,6 +135,10 @@ low volatility and healthy buffer -> shift weight toward juniorSurplus (junior u
 ```
 The dynamic swap fee and the split are linked: in stress, raise the swap fee (more revenue) and direct more of it to rebuilding the buffer; in calm, lower the swap fee to stay competitive and let junior capture upside. Keep the mapping monotonic and documented as a pure function `splitFor(volatilityEWMA, coverageRatioBps)`.
 
+<p align="center">
+  <img src="diagrams/svg/fee-waterfall.svg" alt="Swap fee to epoch obligation to per-share waterfall" width="460"/>
+</p>
+
 ## 6. Settlement (the heart of the system)
 
 At settlement for a position, compute over its holding window [entryEpoch .. currentEpoch]:
@@ -164,6 +168,14 @@ Conservation check (INV-03): assert sum of payouts <= sum of principals + accrue
 
 Vesting (FR-07, FR-14): only the vested portion of fees is paid on a normal claim; early exit forfeits unvested fees, which are credited to `juniorReserve` (INV-05).
 
+The settlement decision tree and the IL absorption order:
+
+<p align="center">
+  <img src="diagrams/svg/settlement-decision.svg" alt="Settlement decision tree for senior and junior withdrawals" width="720"/>
+  &nbsp;
+  <img src="diagrams/svg/il-absorption.svg" alt="IL absorption waterfall: junior buffer first, senior capped" width="430"/>
+</p>
+
 ## 7. Coverage ratio control (CoverageRatio library)
 
 ```
@@ -173,6 +185,10 @@ enforceOnSeniorIntake(depositValue):
     if prospective < minCoverageRatioBps: attempt CPHR top-up, else revert
 stressLevel(ratioBps): returns a 0..10000 stress scalar used by splitFor and the dynamic fee
 ```
+
+<p align="center">
+  <img src="diagrams/svg/coverage-ratio.svg" alt="Coverage ratio enforcement: healthy vs stressed, dynamic fee, Reactive rebalance signal" width="820"/>
+</p>
 
 ## 8. Epoch accounting (EpochAccounting library)
 

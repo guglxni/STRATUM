@@ -50,8 +50,8 @@ else
     [[ -f "$f" ]] || continue
     base="$(basename "$f" .drawio)"
     echo "drawio → svg/png: $base"
-    "$DRAWIO_APP" -x -f svg -o "$SVG/${base}.svg" "$f"
-    "$DRAWIO_APP" -x -f png -o "$PNG/${base}.png" "$f"
+    "$DRAWIO_APP" -x -f svg --no-sandbox --crop -o "$SVG/${base}.svg" "$f"
+    "$DRAWIO_APP" -x -f png --no-sandbox --scale 2 --crop -o "$PNG/${base}.png" "$f"
   done
 fi
 

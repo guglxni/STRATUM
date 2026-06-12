@@ -95,6 +95,10 @@ STRATUM introduces **credit subordination** — a mechanism from structured fina
 
 The two tranches share a single Uniswap v4 pool and its liquidity. No token bridges, no separate vaults, no external collateral.
 
+<p align="center">
+  <img src="docs/diagrams/svg/tranche-lifecycle.svg" alt="Senior and junior tranche lifecycle from deposit through accrual to settlement" width="880"/>
+</p>
+
 ---
 
 ## Prize Track Coverage
@@ -127,7 +131,7 @@ The UHI9 theme asks for "yield-protected liquidity systems that shield LPs from 
 ## Architecture
 
 <p align="center">
-  <img src="docs/diagrams/svg/system-layers.svg" alt="STRATUM system layers: core hook, Reactive coordination, and optional peripherals" width="640"/>
+  <img src="docs/diagrams/svg/stratum-architecture.svg" alt="STRATUM architecture: core hook (always on), Reactive coordination layer, and optional peripherals behind IPeripheral" width="760"/>
 </p>
 
 STRATUM is designed in concentric layers:
@@ -139,6 +143,14 @@ STRATUM is designed in concentric layers:
 **Layer 3 — Optional peripherals** (behind `IPeripheral`): Chainlink APY benchmarking, Arbitrum Stylus matching engine, cross-pool hedging router, Brevis ZK proof verifier, EigenLayer LVR auction receiver. Each is an independent module the core never calls directly — it emits events that peripherals react to.
 
 The full layer breakdown: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+### Where each piece runs
+
+The full stack spans four chains. The core and most peripherals live on Unichain Sepolia; coordination runs on Reactive Lasna; Stylus compute on Arbitrum Sepolia; the Across destination and Chainlink feed on Ethereum Sepolia.
+
+<p align="center">
+  <img src="docs/diagrams/svg/cross-chain-topology.svg" alt="STRATUM cross-chain topology: which contracts are deployed on Unichain Sepolia, Reactive Lasna, Arbitrum Sepolia, and Ethereum Sepolia" width="880"/>
+</p>
 
 ---
 
@@ -197,6 +209,16 @@ IL              = max(0, held − lpValue)
 
 **Senior exit:** `juniorReserve -= ilOnPosition` absorbs IL first. If the buffer is fully depleted, the remaining shortfall is absorbed by senior principal, capped at `maxSeniorILExposureBps`. If the pool returned less than the protected payout, the token-backed reserve (`reserve0`/`reserve1`) tops up the senior LP in real tokens — the protection is paid in-kind, not in a synthetic.
 
+<p align="center">
+  <img src="docs/diagrams/svg/settlement-decision.svg" alt="Settlement decision tree: senior and junior withdrawal paths, both conservation-checked" width="760"/>
+</p>
+
+The junior buffer is the only thing between a volatile market and senior principal. The IL absorption order is strict:
+
+<p align="center">
+  <img src="docs/diagrams/svg/il-absorption.svg" alt="IL absorption waterfall: junior buffer absorbs first, senior capped at maxSeniorILExposureBps" width="620"/>
+</p>
+
 ---
 
 ## Reactive Network Integration (where and how)
@@ -254,6 +276,12 @@ These six invariants are enforced in every code path and fuzz-tested in `test/in
 | INV-04 | Waterfall priority: junior surplus is non-zero only after the senior obligation is fully funded | `closeEpoch` |
 | INV-05 | Buffer monotonicity: `juniorReserve` credited only by fee surplus and fee forfeiture; debited only by IL absorption | Every reserve mutation |
 | INV-06 | Epoch monotonicity: epoch counter never decreases | `closeEpoch` |
+
+The coverage floor (INV-01) is the load-bearing guard. It is graduated — a slope, not a cliff — defending the pool on-chain through dynamic fees and signaling the Reactive layer to rebalance reserve before the floor is breached:
+
+<p align="center">
+  <img src="docs/diagrams/svg/coverage-ratio.svg" alt="Coverage ratio enforcement: healthy vs stressed branches, dynamic fee, and Reactive rebalance signal" width="860"/>
+</p>
 
 ---
 
