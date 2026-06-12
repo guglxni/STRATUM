@@ -3,6 +3,10 @@
 </p>
 
 <p align="center">
+  <strong>UHI9 Project ID: HK-UHI9-0898</strong>
+</p>
+
+<p align="center">
   <a href="https://github.com/guglxni/STRATUM/actions/workflows/ci.yml"><img src="https://github.com/guglxni/STRATUM/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
   <a href="https://soliditylang.org/"><img src="https://img.shields.io/badge/Solidity-0.8.26-blue" alt="Solidity"/></a>
   <a href="https://book.getfoundry.sh/"><img src="https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg" alt="Foundry"/></a>
