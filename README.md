@@ -18,15 +18,32 @@
   No oracle. No underwriter. No borrowed capital.
 </p>
 
-> **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; **MP4:** [docs/assets/stratum-product-video.mp4](docs/assets/stratum-product-video.mp4) &nbsp;·&nbsp; **Live addresses:** [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) &nbsp;·&nbsp; **Judge guide:** [docs/JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md) &nbsp;·&nbsp; **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+> 🎬 **Demo video:** _coming soon — link will be added here_ &nbsp;·&nbsp; 📺 **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; 🌐 **Live demo:** [stratum-nu-dusky.vercel.app](https://stratum-nu-dusky.vercel.app)
+>
+> **Live addresses:** [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) &nbsp;·&nbsp; **Judge guide:** [docs/JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md) &nbsp;·&nbsp; **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 The full stack is live on **Unichain Sepolia** against the canonical Uniswap v4 `PoolManager`, with Reactive RSCs on **Lasna** (chain 5318007) driving epoch settlement and coverage monitoring with no off-chain keeper, and Chainlink benchmarking the senior APY target on **Ethereum Sepolia**. Explorer evidence for every contract: [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md).
+
+---
+
+## Demo Video
+
+<a name="demo-video"></a>
+
+<!-- DEMO VIDEO SLOT: paste the final demo video URL below.
+     - github.com/user-attachments/... URL (drag-drop upload): put it bare on its own line for an inline player.
+     - YouTube/X/Loom link: use a clickable thumbnail:
+       [![Watch the demo](docs/assets/stratum-project-thumbnail.png)](https://your-demo-url) -->
+
+> 🎬 **Demo video coming soon.** The submission demo video will be embedded here. Until then, see the **Product Walkthrough** below for a quick tour of the mechanics and the live stack.
 
 ---
 
 ## Product Walkthrough
 
 <a name="product-walkthrough"></a>
+
+A short product tour (distinct from the submission demo video above) — credit tranching, the fee waterfall, senior/junior tranches, and the live stack.
 
 <p align="center">
   <img src="docs/assets/stratum-product-walkthrough.gif" alt="STRATUM product walkthrough — credit tranching, fee waterfall, senior/junior tranches, live stack" width="760"/>
