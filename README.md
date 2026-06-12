@@ -29,12 +29,11 @@ The full stack is live on **Unichain Sepolia** against the canonical Uniswap v4 
 <a name="product-walkthrough"></a>
 
 <p align="center">
-  <a href="docs/assets/stratum-product-video.mp4">
-    <img src="docs/assets/stratum-project-thumbnail.png" alt="STRATUM product walkthrough - click to watch" width="760"/>
-  </a>
-  <br/>
-  <sub>Click the thumbnail to watch the product walkthrough (MP4, ~1.5 MB) &nbsp;·&nbsp; covers tranche mechanics, epoch settlement, and the live demo UI</sub>
+  <video src="docs/assets/stratum-product-video.mp4" controls poster="docs/assets/stratum-project-thumbnail.png" width="760">
+    <a href="docs/assets/stratum-product-video.mp4">Watch the product walkthrough (MP4, ~1.5 MB)</a>
+  </video>
 </p>
+<p align="center"><sub>Covers tranche mechanics, epoch settlement, the fee waterfall, and the live demo UI</sub></p>
 
 ---
 
