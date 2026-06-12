@@ -1,17 +1,30 @@
 %% Swap fee → epoch → tranche attribution
-flowchart LR
-    S[Swap volume] --> F[beforeSwap dynamic fee bps]
-    F --> A[afterSwap feeAmount]
-    A --> W[Waterfall.splitFee]
-    W --> P[protocolPortion]
-    W --> SN[seniorPortion → epochSeniorFunded]
-    W --> JU[juniorPortion → juniorReserve]
+%% render: mmdc -i fee-waterfall.mmd -o ../svg/fee-waterfall.svg -b transparent --scale 2
+%%{init: {'theme':'base','themeVariables':{'fontSize':'22px','fontFamily':'Helvetica','primaryColor':'#eef4ff','primaryBorderColor':'#1a3a5c','primaryTextColor':'#10202e','lineColor':'#52606d'},'flowchart':{'diagramPadding':28,'nodeSpacing':55,'rankSpacing':70,'subGraphTitleMargin':{'top':8,'bottom':16},'useMaxWidth':true,'htmlLabels':true}}}%%
+flowchart TB
+    S["Swap volume"] --> F["beforeSwap<br/>dynamic fee (bps)"]
+    F --> A["afterSwap<br/>feeAmount"]
+    A --> W["Waterfall.splitFee"]
 
-    SN --> CE[closeEpoch]
+    W --> P["protocolPortion"]
+    W --> SN["seniorPortion →<br/>epochSeniorFunded"]
+    W --> JU["juniorPortion →<br/>juniorReserve"]
+
+    SN --> CE["closeEpoch"]
     JU --> CE
-    CE --> SF[seniorFeePerShareX128]
-    CE --> JF[juniorFeePerShareX128]
-    CE --> SH[shortfall → draw juniorReserve]
+    CE --> SF["seniorFeePerShareX128"]
+    CE --> JF["juniorFeePerShareX128"]
+    CE --> SH["shortfall →<br/>draw juniorReserve"]
 
-    SF --> SET[_settleSenior earned]
-    JF --> SET2[_settleJunior earned]
+    SF --> SET["settleSenior<br/>earned"]
+    JF --> SET2["settleJunior<br/>earned"]
+
+    classDef stage fill:#1a3a5c,color:#ffffff,stroke:#0d2137,stroke-width:2px
+    classDef senior fill:#1a4a8a,color:#ffffff,stroke:#0d2137,stroke-width:2px
+    classDef junior fill:#2d6a4a,color:#ffffff,stroke:#16402c,stroke-width:2px
+    classDef proto fill:#6e6e73,color:#ffffff,stroke:#3a3a3d,stroke-width:2px
+
+    class S,F,A,W,CE stage
+    class SN,SF,SET senior
+    class JU,JF,SET2,SH junior
+    class P proto

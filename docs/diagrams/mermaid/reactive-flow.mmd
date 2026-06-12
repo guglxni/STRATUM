@@ -1,6 +1,8 @@
-%%{init: {'theme':'base','themeVariables':{'primaryColor':'#eef4ff','primaryBorderColor':'#0066cc','lineColor':'#7a7a7a','fontFamily':'Helvetica'}}}%%
+%% Reactive event → react() → scheduled callback loop
+%% render: mmdc -i reactive-flow.mmd -o ../svg/reactive-flow.svg -b transparent --scale 2
+%%{init: {'theme':'base','themeVariables':{'fontSize':'20px','fontFamily':'Helvetica','primaryColor':'#eef4ff','primaryBorderColor':'#0066cc','primaryTextColor':'#10202e','lineColor':'#52606d'},'flowchart':{'diagramPadding':32,'nodeSpacing':55,'rankSpacing':80,'subGraphTitleMargin':{'top':12,'bottom':20},'useMaxWidth':true,'htmlLabels':true}}}%%
 flowchart LR
-  subgraph Origin["Unichain Sepolia (origin chain)"]
+  subgraph Origin["Unichain Sepolia — origin chain (1301)"]
     direction TB
     Hook["StratumHook<br/>emits EpochClosed /<br/>CoverageStress /<br/>JuniorReserveUpdated"]
     Proxy["reactiveCallback(poolId)<br/>via callback proxy<br/>(no off-chain keeper)"]
@@ -8,11 +10,16 @@ flowchart LR
     Proxy --> Effect
   end
 
-  subgraph Reactive["Reactive Lasna (chain 5318007)"]
+  subgraph Reactive["Reactive Lasna — chain 5318007"]
     direction TB
     RSC["EpochSettler · CoverageMonitor · ReserveBalancer<br/>react(LogRecord)"]
   end
 
-  Hook -- "1 - event log, subscribed topic_0" --> RSC
-  RSC -- "2 - emit Callback, schedule call" --> Proxy
+  Hook == "1 — event log, subscribed topic_0" ==> RSC
+  RSC == "2 — emit Callback, schedule call" ==> Proxy
   Effect -. "next epoch / next stress event" .-> Hook
+
+  classDef origin fill:#eef4ff,color:#10202e,stroke:#0066cc,stroke-width:2px
+  classDef react fill:#5a2d6e,color:#ffffff,stroke:#341a40,stroke-width:2px
+  class Hook,Proxy,Effect origin
+  class RSC react

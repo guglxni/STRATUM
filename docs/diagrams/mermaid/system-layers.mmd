@@ -1,37 +1,34 @@
-%% STRATUM system layers — render: mmdc -i system-layers.mmd -o ../svg/system-layers.svg
+%% STRATUM system layers — render: mmdc -i system-layers.mmd -o ../svg/system-layers.svg -b transparent --scale 2
+%%{init: {'theme':'base','themeVariables':{'fontSize':'20px','fontFamily':'Helvetica','primaryColor':'#eef4ff','primaryBorderColor':'#1a3a5c','primaryTextColor':'#10202e','lineColor':'#52606d'},'flowchart':{'diagramPadding':32,'nodeSpacing':45,'rankSpacing':70,'subGraphTitleMargin':{'top':12,'bottom':28},'useMaxWidth':true,'htmlLabels':true}}}%%
 flowchart TB
-    subgraph reactive["Reactive Network (autonomic)"]
-        ES[EpochSettler]
-        CM[CoverageMonitor]
-        RB[ReserveBalancer]
+    subgraph core["① Unichain — core hook (always on)"]
+        direction LR
+        PM["PoolManager v4"] <-->|"hooks"| HK["StratumHook"]
+        HK --> STLP["stLP"]
+        HK --> JTLP["jtLP"]
     end
 
-    subgraph peripherals["Optional peripherals"]
-        AC[Across CPHR]
-        BR[Brevis ZK fees]
-        EL[EigenLayer AVS]
-        ST[Stylus matching + ML]
+    subgraph reactive["② Reactive Network — autonomic coordination (Lasna)"]
+        direction LR
+        ES["EpochSettler"]
+        CM["CoverageMonitor"]
+        RB["ReserveBalancer"]
     end
 
-    subgraph core["Unichain — core (always on)"]
-        HK[StratumHook]
-        PM[PoolManager v4]
-        STLP[stLP]
-        JTLP[jtLP]
+    subgraph peripherals["③ Optional peripherals — behind IPeripheral"]
+        direction LR
+        AC["Across<br/>CPHR"]
+        BR["Brevis<br/>ZK fees"]
+        EL["EigenLayer<br/>AVS"]
+        ST["Stylus<br/>matching + ML"]
     end
 
-    PM <-->|hooks| HK
-    HK --> STLP
-    HK --> JTLP
-    reactive -->|epoch / stress callbacks| HK
-    AC -.->|reserve bridge| HK
-    BR -.->|proof verify| HK
-    EL -.->|LVR yield| HK
-    ST -.->|vol / netting| HK
+    reactive ==>|"epoch / stress callbacks"| HK
+    peripherals -.->|"reserve bridge · proof verify · LVR yield · vol / netting"| HK
 
-    classDef core fill:#1a3a5c,color:#fff,stroke:#0d2137
-    classDef opt fill:#2d4a3e,color:#fff,stroke:#1a3028,stroke-dasharray:5
-    classDef coord fill:#4a2d5c,color:#fff,stroke:#2d1a3a
+    classDef core fill:#1a3a5c,color:#ffffff,stroke:#0d2137,stroke-width:2px
+    classDef opt fill:#2d6a4a,color:#ffffff,stroke:#16402c,stroke-width:2px,stroke-dasharray:6
+    classDef coord fill:#5a2d6e,color:#ffffff,stroke:#341a40,stroke-width:2px
     class HK,PM,STLP,JTLP core
     class AC,BR,EL,ST opt
     class ES,CM,RB coord

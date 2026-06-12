@@ -127,7 +127,7 @@ The UHI9 theme asks for "yield-protected liquidity systems that shield LPs from 
 ## Architecture
 
 <p align="center">
-  <img src="docs/diagrams/svg/system-layers.svg" alt="STRATUM system layers: core hook, Reactive coordination, and optional peripherals" width="760"/>
+  <img src="docs/diagrams/svg/system-layers.svg" alt="STRATUM system layers: core hook, Reactive coordination, and optional peripherals" width="640"/>
 </p>
 
 STRATUM is designed in concentric layers:
@@ -157,7 +157,7 @@ Before a senior deposit is accepted, the coverage ratio invariant is checked: `j
 ### 3. Fee waterfall on every swap
 
 <p align="center">
-  <img src="docs/diagrams/svg/fee-waterfall.svg" alt="Swap fee to epoch obligation to fee-per-share waterfall" width="640"/>
+  <img src="docs/diagrams/svg/fee-waterfall.svg" alt="Swap fee to epoch obligation to fee-per-share waterfall" width="460"/>
 </p>
 
 Every swap triggers a dynamic fee calculation:
@@ -204,7 +204,7 @@ IL              = max(0, held − lpValue)
 STRATUM uses Reactive Smart Contracts (RSCs) to drive settlement and risk response **with no off-chain keeper**. The core hook emits ordinary EVM events; the RSCs subscribe on the Reactive chain and schedule callbacks back to the origin chain.
 
 <p align="center">
-  <img src="docs/diagrams/svg/reactive-flow.svg" alt="Reactive event-to-callback flow: hook event on Unichain to react() on Lasna to scheduled callback on Unichain" width="760"/>
+  <img src="docs/diagrams/svg/reactive-flow.svg" alt="Reactive event-to-callback flow: hook event on Unichain to react() on Lasna to scheduled callback on Unichain" width="820"/>
 </p>
 
 ### Where in the code
@@ -402,7 +402,7 @@ docs/                           Public docs, PRD, architecture, live system, jud
 ### Fee Waterfall
 
 <p align="center">
-  <img src="docs/diagrams/svg/fee-waterfall.svg" alt="Swap fee to epoch obligation to fee-per-share waterfall" width="640"/>
+  <img src="docs/diagrams/svg/fee-waterfall.svg" alt="Swap fee to epoch obligation to fee-per-share waterfall" width="460"/>
 </p>
 
 Every swap generates a fee. The waterfall processes it in three stages:
