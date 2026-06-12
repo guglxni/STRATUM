@@ -26,10 +26,12 @@ declare const process: { env: Record<string, string | undefined> };
 
 const queryClient = new QueryClient();
 
-// WalletConnect needs a project id from https://cloud.reown.com (free). Set it as
-// NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID. If unset, we degrade gracefully to injected +
-// Coinbase Wallet only, so the demo still connects MetaMask without any cloud signup.
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "";
+// WalletConnect/Reown project id from https://cloud.reown.com (free). Defaults to the
+// STRATUM demo project so the QR/mobile connector works out of the box; override via
+// NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID. If blanked, the app degrades gracefully to
+// injected + Coinbase Wallet only.
+const walletConnectProjectId =
+  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? "891fc4be182b2da7ebd3afe51c3600e0";
 
 const connectors: CreateConnectorFn[] = [
   // Browser-extension wallets (MetaMask, Rabby, Brave, ...). Always available.
