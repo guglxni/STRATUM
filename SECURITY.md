@@ -22,7 +22,7 @@ Mapping [OWASP Top 10 (2021)](https://owasp.org/Top10/) to this codebase:
 | A01 Broken access control | `preparePool` creator lock; position owner checks; `closeEpoch` time guard; junior exit coverage | Addressed in core (see tests) |
 | A02 Cryptographic failures | No custom crypto; Ethereum signatures via Foundry broadcast | N/A / standard tooling |
 | A03 Injection | `hookData` ABI decode; no SQL/shell | Bounded to `TrancheType` + `bytes32` salt |
-| A04 Insecure design | Tranche waterfall, conservation checks, fee-per-share | Design in `docs/DESIGN.md`; testnet only |
+| A04 Insecure design | Tranche waterfall, conservation checks, fee-per-share | Design in `docs/TECHNICAL_DESIGN.md`; testnet only |
 | A05 Security misconfiguration | `.env` leakage, verify keys in CI | **Use `.env.example` only**; CI has no secrets |
 | A06 Vulnerable components | `lib/v4-core`, `forge-std` (git submodules) | Pin submodules; run `forge build` / CI |
 | A07 Identification & auth failures | LP = `msg.sender`; hook = `onlyPoolManager` | v4 callback model |

@@ -1,0 +1,18 @@
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#eef4ff','primaryBorderColor':'#0066cc','lineColor':'#7a7a7a','fontFamily':'Helvetica'}}}%%
+flowchart LR
+  subgraph Origin["Unichain Sepolia (origin chain)"]
+    direction TB
+    Hook["StratumHook<br/>emits EpochClosed /<br/>CoverageStress /<br/>JuniorReserveUpdated"]
+    Proxy["reactiveCallback(poolId)<br/>via callback proxy<br/>(no off-chain keeper)"]
+    Effect["closeEpoch settlement /<br/>CPHR rebalance signal"]
+    Proxy --> Effect
+  end
+
+  subgraph Reactive["Reactive Lasna (chain 5318007)"]
+    direction TB
+    RSC["EpochSettler · CoverageMonitor · ReserveBalancer<br/>react(LogRecord)"]
+  end
+
+  Hook -- "1 - event log, subscribed topic_0" --> RSC
+  RSC -- "2 - emit Callback, schedule call" --> Proxy
+  Effect -. "next epoch / next stress event" .-> Hook

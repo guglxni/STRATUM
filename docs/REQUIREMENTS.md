@@ -1,6 +1,6 @@
 # STRATUM Requirements
 
-Testable requirements with stable IDs. Every functional requirement (FR) should map to at least one test. Non-functional requirements (NFR) and invariants (INV) constrain how the system behaves under all conditions. Cross-references: `PRD.md` for the why, `DESIGN.md` for the how.
+Testable requirements with stable IDs. Every functional requirement (FR) should map to at least one test. Non-functional requirements (NFR) and invariants (INV) constrain how the system behaves under all conditions. Cross-references: `PRD.md` for the why, `TECHNICAL_DESIGN.md` for the how.
 
 ## Functional requirements
 
@@ -58,6 +58,13 @@ Testable requirements with stable IDs. Every functional requirement (FR) should 
 ### Benchmarked rate (Chainlink, library-level)
 
 - FR-25 Benchmark spread. Senior target APY may be expressed as a benchmark rate (read from a Chainlink Data Feed) plus a configured spread. This input affects only the senior target, never IL accounting.
+
+### LP intents and supplementary-yield bounds (Reactive-native extensions)
+
+- FR-28 LVR proceeds bound. `LVRAuctionReceiver.receiveYield` enforces an optional per-pool bound (`setProceedsBound`): a routing whose USD value (valued with independent Chainlink price feeds) exceeds `LVRProceedsValidator.maxRationalProceeds` of the pool's on-chain TVL is rejected, so even a compromised attestation quorum cannot over-credit the senior reserve. A stale/missing price or zero TVL degrades to attestation-only (cannot-validate, no revert). This is a validation bound on supplementary yield, never an input to IL or coverage math.
+- FR-29 Volatility model data. The Stylus volatility model is warm-started off-chain from a historical price series (e.g. successive Chainlink rounds turned into log-returns); the on-chain hook still consumes only the resulting volatility parameter, never a price feed.
+- FR-30 LP conditional intents. An LP registers a conditional migration intent (condition type, threshold, destination tranche) in the `TrancheIntentRegistry` and authorizes it per position via `approveMigrator`. The `IntentSettlerRSC` executes ready intents with no keeper when a subscribed hook event flips the condition. Conditions read only on-chain hook state (coverage ratio, senior APY): no oracle.
+- FR-31 Tranche migration. `migrateTranchePosition` reclassifies a position between senior and junior in place without moving the underlying Uniswap liquidity or any real tokens. Accrued IL is realized under the source tranche before the IL clock resets (no IL-dodging, golden rule 3); a junior->senior flip is enforced against the coverage floor (INV-01); the carried principal never exceeds the old principal (INV-03).
 
 ### Observability
 

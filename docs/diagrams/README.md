@@ -49,6 +49,7 @@ npx -p @mermaid-js/mermaid-cli mmdc \
 | File | Topic |
 |------|--------|
 | `system-layers.mmd` | Core vs Reactive vs optional peripherals |
+| `reactive-flow.mmd` | Reactive event → `react()` → scheduled callback loop |
 | `hook-lifecycle.mmd` | v4 callback sequence (deposit → swap → withdraw) |
 | `settlement-flow.mmd` | Senior/junior withdrawal decision tree |
 | `fee-waterfall.mmd` | Swap fee → epoch → fee-per-share |

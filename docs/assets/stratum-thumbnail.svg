@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-label="STRATUM project thumbnail">
+  <defs>
+    <symbol id="stratum-logo-mark" viewBox="0 0 32 32">
+      <rect x="4" y="5" width="24" height="6" rx="2" fill="#1d1d1f"/>
+      <rect x="4" y="13" width="24" height="6" rx="2" fill="#6e6e73"/>
+      <rect x="4" y="21" width="16" height="6" rx="2" fill="#aeaeb2"/>
+    </symbol>
+  </defs>
+
+  <rect width="1280" height="720" fill="#ffffff"/>
+
+  <!-- nav row: same logo mark + wordmark as frontend gnav -->
+  <use href="#stratum-logo-mark" x="80" y="108" width="72" height="72"/>
+  <text x="176" y="162" font-family="Inter, SF Pro Display, system-ui, -apple-system, sans-serif" font-size="64" font-weight="600" fill="#1d1d1f" letter-spacing="-1.5">STRATUM</text>
+
+  <text x="80" y="228" font-family="Inter, SF Pro Text, system-ui, sans-serif" font-size="28" font-weight="400" fill="#7a7a7a">Structured credit on Uniswap v4</text>
+  <text x="80" y="272" font-family="Inter, SF Pro Text, system-ui, sans-serif" font-size="20" font-weight="600" fill="#7a7a7a">Live on Unichain Sepolia</text>
+
+  <!-- hero line from landing -->
+  <text x="80" y="360" font-family="Inter, SF Pro Display, system-ui, sans-serif" font-size="48" font-weight="600" fill="#1d1d1f" letter-spacing="-1">Credit tranching for AMM liquidity.</text>
+  <text x="80" y="412" font-family="Inter, SF Pro Text, system-ui, sans-serif" font-size="22" font-weight="400" fill="#333333">Senior: fixed yield, IL protected. Junior: leveraged fees, first-loss buffer.</text>
+
+  <!-- tranche strata (product metaphor, flat fills per DESIGN.md) -->
+  <rect x="80" y="500" width="1120" height="64" rx="12" fill="#1a3a5c"/>
+  <rect x="80" y="580" width="1120" height="64" rx="12" fill="#2d4a3e"/>
+  <text x="112" y="542" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="600" fill="#ffffff">Senior tranche</text>
+  <text x="112" y="622" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="600" fill="#ffffff">Junior tranche</text>
+
+  <!-- large watermark mark (favicon geometry, not a new icon) -->
+  <use href="#stratum-logo-mark" x="980" y="280" width="220" height="220" opacity="0.12"/>
+</svg>

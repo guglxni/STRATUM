@@ -1,6 +1,6 @@
 # STRATUM Architecture
 
-Status: design baseline for UHI9 build. Authoritative for system structure. For exact contract behavior see `DESIGN.md`. For requirements see `REQUIREMENTS.md`.
+Status: design baseline for UHI9 build. Authoritative for system structure. For exact contract behavior see `TECHNICAL_DESIGN.md`. For requirements see `REQUIREMENTS.md`.
 
 ## 1. Thesis
 
@@ -84,7 +84,7 @@ Reactive sits at the center as connective tissue. Each peripheral is a specializ
 
 ## 3. Core: the StratumHook
 
-The hook lives on the EVM (Unichain) and uses the following v4 callbacks. Exact logic is in `DESIGN.md`.
+The hook lives on the EVM (Unichain) and uses the following v4 callbacks. Exact logic is in `TECHNICAL_DESIGN.md`.
 
 - `beforeInitialize`: write pool parameters into `PoolTrancheState` (senior target APY in bps, coverage ratio floor, epoch length, max senior IL exposure, peripheral addresses if any).
 - `afterAddLiquidity`: register the LP's tranche choice, snapshot entry `sqrtPriceX96` and tick range, enforce the coverage ratio floor, mint `stLP` or `jtLP`.

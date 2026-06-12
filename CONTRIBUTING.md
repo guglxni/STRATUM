@@ -4,7 +4,7 @@ Thank you for helping improve STRATUM. This project is a UHI9 hackathon build wi
 
 ## Before you open a PR
 
-1. Read [docs/DESIGN.md](docs/DESIGN.md) and [CLAUDE.md](CLAUDE.md) golden rules.
+1. Read [docs/TECHNICAL_DESIGN.md](docs/TECHNICAL_DESIGN.md) and [CLAUDE.md](CLAUDE.md) golden rules.
 2. Run `forge test` and `forge fmt`.
 3. Run `./scripts/check-secrets.sh` — must pass before commit or push.
 4. If you change architecture visuals, run `./scripts/render-diagrams.sh` and commit updated SVGs under `docs/diagrams/svg/`.
@@ -24,7 +24,7 @@ Thank you for helping improve STRATUM. This project is a UHI9 hackathon build wi
 
 ## Documentation
 
-- Normative behavior → update `docs/DESIGN.md` and mirror in `files/DESIGN.md` if that tree is still the design baseline
+- Normative behavior → update `docs/TECHNICAL_DESIGN.md` and mirror in `files/TECHNICAL_DESIGN.md` if that tree is still the design baseline
 - System structure → `docs/ARCHITECTURE.md` + diagrams in `docs/diagrams/`
 - Regenerate codebase map: `graphify update src` (optional) and refresh `docs/CODEBASE_GRAPH.md` summary if structure changes materially
 
