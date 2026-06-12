@@ -108,6 +108,22 @@ The two tranches share a single Uniswap v4 pool and its liquidity. No token brid
 
 ---
 
+## Theme Coverage: all five UHI9 "IL & Yield Systems" ideas, in one hook
+
+The UHI9 theme asks for "yield-protected liquidity systems that shield LPs from impermanent loss while unlocking sustainable, predictable on-chain returns." The Request-for-Hooks lists five hook ideas under it. **STRATUM covers all five**, each backed by live on-chain contracts — not five separate hooks, one hook whose tranche architecture expresses all five at once.
+
+| # | Theme idea | How STRATUM delivers it | Where in code | Live |
+|---|---|---|---|---|
+| 1 | **IL Insurance Hooks** | Junior subordination *is* the insurance: junior capital absorbs impermanent loss dollar-for-dollar before senior principal is ever touched; the junior buffer is funded by IL clawbacks and capped senior exposure (`maxSeniorILExposureBps`). Structural, on-chain, no premium underwriter. | `TrancheSettlementLib.sol` (`settleSenior`/`settleJunior`), `CoverageRatio.sol` | ✅ Unichain Sepolia |
+| 2 | **YieldBasis-Style Fixed Income** | Senior `stLP` earns a fixed, epoch-smoothed APY paid first from the fee waterfall, optionally benchmarked against a Chainlink rate feed. This is the "predictable, sustainable return" the theme names — a fixed-income tranche on an AMM. | `EpochAccounting.sol`, `StratumRateLibrary.sol` | ✅ Chainlink read on Eth Sepolia |
+| 3 | **Delta-Neutral Hooks** | **Senior delta exposure is structurally offset by junior IL absorption.** When price moves either direction, the junior tranche absorbs the position's impermanent loss, so the senior position's *settled* value is price-insensitive — senior LPs are delta-hedged without a perp, an oracle, or per-block rebalancing. An optional Stylus ML volatility model raises the dynamic fee ahead of vol spikes. This is delta-neutrality achieved by **capital subordination**, not by an external short position. | `ARCHITECTURE.md` (delta-neutral note), `TrancheSettlementLib.sol`, `StratumHook.sol` (Stylus vol hook) | ✅ Structural (live); Stylus engine live on Arbitrum Sepolia |
+| 4 | **Fee-Smoothing Hooks** | Swap fees accumulate into epochs and vest linearly per-share, so yield is distributed smoothly over time instead of in lumpy per-swap cliffs. Unvested fees on early exit forfeit to the junior buffer. | `StratumHook.sol` (`closeEpoch`, `afterSwap`), `TrancheSettlementLib.sol` (`harvestAndVest`) | ✅ Unichain Sepolia |
+| 5 | **Cross-Pool Hedging Routers** | A `CorrelationRegistry` models correlated pools; the `CrossPoolHedgingRouter` nets opposing IL across correlated pairs (`netExposures`), aggregates junior reserve same-chain, and bridges reserve cross-chain over Across V3 to defend a stressed pool's coverage floor. | `src/peripherals/across/` | ✅ Across full loop (deposit 6099 → 0.9995 WETH credited on Sepolia) |
+
+**On idea #3 specifically (the one that is easy to miss):** STRATUM is delta-neutral *for the senior tranche* by construction. Most delta-neutral hooks reach neutrality by opening an offsetting position on an external venue (a perp, an option). STRATUM reaches it by **subordination** — the junior tranche is the offsetting position, held inside the same pool. That makes the senior outcome price-insensitive with no oracle in the loss path, no external venue, and no bridge dependency for the hedge itself. It is the most robust form of the idea because it cannot break when a funding rate flips, a perp venue is unreachable, or a bridge stalls.
+
+---
+
 ## Architecture
 
 <p align="center">
