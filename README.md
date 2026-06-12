@@ -33,7 +33,7 @@ The full stack is live on **Unichain Sepolia** against the canonical Uniswap v4 
 
 <a name="demo-video"></a>
 
-[![Watch the demo](docs/assets/stratum-project-thumbnail.png)](https://drive.google.com/file/d/11uxTQE6f2XLT4vDP6GzWFl__IVvxkUyv/view?usp=drive_link)
+[![Watch the demo](docs/assets/stratum-demo-thumbnail.svg)](https://drive.google.com/file/d/11uxTQE6f2XLT4vDP6GzWFl__IVvxkUyv/view?usp=drive_link)
 
 **[Watch demo video on Google Drive](https://drive.google.com/file/d/11uxTQE6f2XLT4vDP6GzWFl__IVvxkUyv/view?usp=drive_link)**  
 All assets also available in the [Google Drive folder](https://drive.google.com/drive/folders/1EZLK5LX6vS97P3PbWgTjU3eBeIP16l_P).
