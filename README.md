@@ -54,12 +54,12 @@ All assets also available in the [Google Drive folder](https://drive.google.com/
 
 <a name="product-walkthrough"></a>
 
-A short product tour (distinct from the submission demo video above) — credit tranching, the fee waterfall, senior/junior tranches, and the live stack.
+A short product tour: credit tranching, the fee waterfall, senior/junior tranches, and the live stack.
 
 <p align="center">
   <img src="docs/assets/stratum-product-walkthrough.gif" alt="STRATUM product walkthrough — credit tranching, fee waterfall, senior/junior tranches, live stack" width="760"/>
   <br/>
-  <sub>30s walkthrough — also available as <a href="docs/assets/stratum-product-video.mp4">MP4 with audio</a></sub>
+  <sub>30s walkthrough</sub>
   <br/><br/>
   <a href="https://stratum-nu-dusky.vercel.app"><strong>Try the live app on Unichain Sepolia →</strong></a>
 </p>
