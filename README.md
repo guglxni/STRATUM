@@ -9,13 +9,16 @@
   <img src="https://img.shields.io/badge/Network-Unichain%20Sepolia-7c3aed" alt="Unichain Sepolia"/>
   <img src="https://img.shields.io/badge/Hook-Uniswap%20v4-ff007a" alt="Uniswap v4"/>
   <img src="https://img.shields.io/badge/Reactive%20Network-Live-22c55e" alt="Reactive Network Live"/>
+  <a href="https://stratum-nu-dusky.vercel.app"><img src="https://img.shields.io/badge/Live%20Demo-Vercel-000000" alt="Live Demo on Vercel"/></a>
 </p>
 
 <p align="center">
   <strong>Structured credit subordination for Uniswap v4 liquidity.</strong><br/>
   Senior LPs earn a fixed smoothed yield, protected from impermanent loss.<br/>
   Junior LPs absorb IL first in exchange for leveraged fee exposure.<br/>
-  No oracle. No underwriter. No borrowed capital.
+  No oracle. No underwriter. No borrowed capital.<br/>
+  <br/>
+  <a href="https://stratum-nu-dusky.vercel.app"><strong>Launch live demo →</strong></a>
 </p>
 
 > 🎬 **Demo video:** _coming soon — link will be added here_ &nbsp;·&nbsp; 📺 **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; 🌐 **Live demo:** [stratum-nu-dusky.vercel.app](https://stratum-nu-dusky.vercel.app)
@@ -49,6 +52,8 @@ A short product tour (distinct from the submission demo video above) — credit 
   <img src="docs/assets/stratum-product-walkthrough.gif" alt="STRATUM product walkthrough — credit tranching, fee waterfall, senior/junior tranches, live stack" width="760"/>
   <br/>
   <sub>30s walkthrough — also available as <a href="docs/assets/stratum-product-video.mp4">MP4 with audio</a></sub>
+  <br/><br/>
+  <a href="https://stratum-nu-dusky.vercel.app"><strong>Try the live app on Unichain Sepolia →</strong></a>
 </p>
 
 ---

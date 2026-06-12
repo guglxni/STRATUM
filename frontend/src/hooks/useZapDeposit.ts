@@ -68,6 +68,37 @@ export function useZapDeposit() {
   const zap = STRATUM_ADDRESSES.zap as `0x${string}`;
   const zapConfigured = !!STRATUM_ADDRESSES.zap;
 
+  /**
+   * Estimate gas on the app's healthy public RPC instead of letting the wallet estimate.
+   *
+   * Some wallets are configured with a Unichain Sepolia endpoint that returns a null block for
+   * eth_getBlockByNumber; viem's wallet-side estimator then throws the misleading
+   * "Cannot destructure property 'gasLimit' of '(intermediate value)' as it is null", surfaced as a
+   * bogus "<fn> reverted". Estimating against `publicClient` (which uses our pinned RPC) sidesteps
+   * that. We add a 25% buffer for estimator drift and return `undefined` on failure so the wallet's
+   * own estimation still runs as a fallback rather than blocking the transaction.
+   */
+  const gasViaPublic = useCallback(
+    async (params: {
+      address: `0x${string}`;
+      abi: typeof ERC20_ABI | typeof STRATUM_ZAP_ABI;
+      functionName: string;
+      args: readonly unknown[];
+    }): Promise<bigint | undefined> => {
+      if (!publicClient || !address) return undefined;
+      try {
+        const g = await publicClient.estimateContractGas({
+          ...params,
+          account: address,
+        } as Parameters<typeof publicClient.estimateContractGas>[0]);
+        return (g * 125n) / 100n;
+      } catch {
+        return undefined;
+      }
+    },
+    [publicClient, address]
+  );
+
   /** Ensure `spender` can pull `amount` of `token` from the user; sends approve only if short. */
   const ensureAllowance = useCallback(
     async (token: `0x${string}`, spender: `0x${string}`, amount: bigint) => {
@@ -79,15 +110,17 @@ export function useZapDeposit() {
         args: [address, spender],
       })) as bigint;
       if (current >= amount) return;
+      const gas = await gasViaPublic({ address: token, abi: ERC20_ABI, functionName: "approve", args: [spender, amount] });
       const hash = await walletClient.writeContract({
         address: token,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [spender, amount],
+        gas,
       });
       await publicClient.waitForTransactionReceipt({ hash });
     },
-    [publicClient, walletClient, address]
+    [publicClient, walletClient, address, gasViaPublic]
   );
 
   const deposit = useCallback(
@@ -117,11 +150,14 @@ export function useZapDeposit() {
           });
 
           setState({ phase: "depositing", message: "Submitting depositWithPermit2…" });
+          const dpArgs = [poolKey, tickLower, tickUpper, liquidity, tranche, userSalt, permit, signature] as const;
+          const dpGas = await gasViaPublic({ address: zap, abi: STRATUM_ZAP_ABI, functionName: "depositWithPermit2", args: dpArgs });
           hash = await walletClient.writeContract({
             address: zap,
             abi: STRATUM_ZAP_ABI,
             functionName: "depositWithPermit2",
-            args: [poolKey, tickLower, tickUpper, liquidity, tranche, userSalt, permit, signature],
+            args: dpArgs,
+            gas: dpGas,
           });
         } else {
           if (mode === "approve") {
@@ -130,21 +166,24 @@ export function useZapDeposit() {
             await ensureAllowance(poolKey.currency1, zap, amount1Max);
           }
           setState({ phase: "depositing", message: "Submitting deposit…" });
+          const depArgs = [
+            poolKey,
+            tickLower,
+            tickUpper,
+            liquidity,
+            tranche,
+            userSalt,
+            mode === "delivered" ? 0n : amount0Max,
+            mode === "delivered" ? 0n : amount1Max,
+            mode === "delivered",
+          ] as const;
+          const depGas = await gasViaPublic({ address: zap, abi: STRATUM_ZAP_ABI, functionName: "deposit", args: depArgs });
           hash = await walletClient.writeContract({
             address: zap,
             abi: STRATUM_ZAP_ABI,
             functionName: "deposit",
-            args: [
-              poolKey,
-              tickLower,
-              tickUpper,
-              liquidity,
-              tranche,
-              userSalt,
-              mode === "delivered" ? 0n : amount0Max,
-              mode === "delivered" ? 0n : amount1Max,
-              mode === "delivered",
-            ],
+            args: depArgs,
+            gas: depGas,
           });
         }
 
@@ -168,7 +207,7 @@ export function useZapDeposit() {
         setState({ phase: "error", message: errMessage(e) });
       }
     },
-    [zapConfigured, publicClient, walletClient, address, chainId, zap, ensureAllowance]
+    [zapConfigured, publicClient, walletClient, address, chainId, zap, ensureAllowance, gasViaPublic]
   );
 
   const withdraw = useCallback(
@@ -179,11 +218,14 @@ export function useZapDeposit() {
       }
       try {
         setState({ phase: "withdrawing", message: "Closing the position…" });
+        const wArgs = [args.poolKey, args.tickLower, args.tickUpper, args.userSalt] as const;
+        const wGas = await gasViaPublic({ address: zap, abi: STRATUM_ZAP_ABI, functionName: "withdraw", args: wArgs });
         const hash = await walletClient.writeContract({
           address: zap,
           abi: STRATUM_ZAP_ABI,
           functionName: "withdraw",
-          args: [args.poolKey, args.tickLower, args.tickUpper, args.userSalt],
+          args: wArgs,
+          gas: wGas,
         });
         await publicClient.waitForTransactionReceipt({ hash });
         setState({ phase: "done", message: "Position closed; proceeds delivered to your wallet.", txHash: hash });
@@ -191,7 +233,7 @@ export function useZapDeposit() {
         setState({ phase: "error", message: errMessage(e) });
       }
     },
-    [zapConfigured, publicClient, walletClient, address, zap]
+    [zapConfigured, publicClient, walletClient, address, zap, gasViaPublic]
   );
 
   const reset = useCallback(() => setState({ phase: "idle", message: "" }), []);

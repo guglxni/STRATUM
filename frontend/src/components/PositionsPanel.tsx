@@ -106,6 +106,10 @@ function PositionRow({ p }: { p: UserPosition }) {
               abi: STRATUM_ZAP_ABI,
               functionName: "claimVested",
               args: [p.positionId],
+              // Pin gas so viem skips eth_estimateGas via the wallet RPC, which on some
+              // Unichain Sepolia wallet endpoints returns a null block and throws the
+              // misleading "Cannot destructure property 'gasLimit' ... as it is null".
+              gas: 300_000n,
             })
           }
           title={canClaim ? "Claim the senior coupon vested so far (FR-07)" : "Nothing vested to claim yet"}

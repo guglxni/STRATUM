@@ -150,6 +150,13 @@ export default function DemoFaucet() {
           abi: DEMO_TOKEN_ABI,
           functionName: "faucet",
           args: [address, FAUCET_AMOUNT],
+          // Pin the gas limit so viem does NOT call eth_estimateGas through the wallet's RPC.
+          // Some wallets are configured with a Unichain Sepolia endpoint that returns a null
+          // block for eth_getBlockByNumber, which makes viem's estimator throw the misleading
+          // "Cannot destructure property 'gasLimit' ... as it is null" wrapped as a faucet revert.
+          // The mint is a fixed-cost ERC-20 mint (~51k gas measured on-chain); 150k is a safe cap.
+          // Fees are still left to the wallet, so this stays correct across RPCs.
+          gas: 150_000n,
         },
         {
           onError: (e) => setStatus(e.message.slice(0, 200)),
