@@ -21,11 +21,38 @@ secrets.json
 # Security & internal audit reports (local only; see SECURITY.md)
 docs/AUDIT.md
 docs/AUDIT_*.md
+docs/SECURITY_AUDIT.md
+docs/SECURITY_REVIEW_*.md
+docs/DIA_ORACLE_AUDIT.md
 security/**
 !security/README.example
 internal/
 **/private-audit/
 *.audit.local.md
+brevis-circuits/BREVIS_BUG_REPORT.md
+
+# Internal / development docs (local only — the curated public set stays tracked).
+# Agent operating guides, phased plans, dev investigations, and design-process notes.
+AGENTS.md
+CLAUDE.md
+DESIGN.md
+docs/AGENTS.md
+docs/CLAUDE.md
+docs/SKILL.md
+docs/AIDLC.md
+docs/CODEBASE_GRAPH.md
+docs/PLAN.md
+docs/PROPOSAL.md
+docs/BREVIS_OPTIONS.md
+docs/BREVIS_ROUTE_RESOLUTION.md
+docs/CROSS_CHAIN_VERIFICATION.md
+docs/ORACLE_AND_INTENTS_PLAN.md
+docs/REACTIVE_INTEGRATION_PLAN.md
+docs/FRONTEND_INTEGRATION_ENHANCEMENTS.md
+docs/FRONTEND_PROTOCOL_INTERACTIVITY.md
+docs/FRONTEND_UPGRADE_INSTRUCTIONS.md
+docs/UNISWAP_DEV_PORTAL_INTEGRATION.md
+docs/UNISWAP_ENHANCEMENTS.md
 
 # Agent / IDE / session (may contain keys or prompts)
 .agents/
@@ -43,9 +70,27 @@ files.zip
 node_modules/
 frontend/dist/
 
+# Rust build artifacts (stylus, operator, brevis) — keep Cargo.toml/lock + src/ only
+**/target/
+
+# Go vendored dependencies — restorable via `go mod download`
+**/vendor/
+
+# Brevis ZK heavy artifacts (gigabytes; regenerable from circuit source).
+# srs-cache/circuit-out are caches; receipt/rprobe/stratum-brevis are compiled Go binaries (55-57M each).
+brevis-circuits/srs-cache/
+brevis-circuits/circuit-out/
+brevis-circuits/stratum-brevis
+brevis-circuits/receipt
+brevis-circuits/rprobe
+
+# Product-video generation scaffolding (internal tooling; the rendered video is linked from README)
+stratum-product-video/
+
 # OS
 .DS_Store
 .idea/
 .vscode/
 *.swp
 *~
+.operator-keys.json
