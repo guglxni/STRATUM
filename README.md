@@ -18,7 +18,7 @@
   No oracle. No underwriter. No borrowed capital.
 </p>
 
-> **Demo video:** _add link_ &nbsp;·&nbsp; **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; **Live addresses:** [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) &nbsp;·&nbsp; **Judge guide:** [docs/JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md) &nbsp;·&nbsp; **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+> **Product walkthrough:** [watch below](#product-walkthrough) &nbsp;·&nbsp; **MP4:** [docs/assets/stratum-product-video.mp4](docs/assets/stratum-product-video.mp4) &nbsp;·&nbsp; **Live addresses:** [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) &nbsp;·&nbsp; **Judge guide:** [docs/JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md) &nbsp;·&nbsp; **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 The full stack is live on **Unichain Sepolia** against the canonical Uniswap v4 `PoolManager`, with Reactive RSCs on **Lasna** (chain 5318007) driving epoch settlement and coverage monitoring with no off-chain keeper, and Chainlink benchmarking the senior APY target on **Ethereum Sepolia**. Explorer evidence for every contract: [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md).
 
@@ -28,26 +28,10 @@ The full stack is live on **Unichain Sepolia** against the canonical Uniswap v4 
 
 <a name="product-walkthrough"></a>
 
-<!--
-  INLINE PLAYER UPGRADE: GitHub only renders a native <video> player for URLs on the
-  user-attachments host, which it mints when a file is dragged into its web UI. A relative
-  repo path (docs/assets/...) renders a blank box, so the clickable poster below is used.
-  To get a true inline player, replace the <p>…</p> block under this comment with:
-
-      https://github.com/user-attachments/assets/<uuid>
-
-  on its own line (no <video> tag needed). Get that <uuid> URL in ~30s:
-    1. Open https://github.com/guglxni/STRATUM/issues/new
-    2. Drag docs/assets/stratum-product-video.mp4 into the comment box, wait for upload
-    3. Copy the https://github.com/user-attachments/assets/... URL it inserts (do not submit the issue)
--->
-
 <p align="center">
-  <a href="https://github.com/guglxni/STRATUM/raw/main/docs/assets/stratum-product-video.mp4">
-    <img src="docs/assets/stratum-project-thumbnail.png" alt="STRATUM product walkthrough — click to play" width="760"/>
-  </a>
+  <img src="docs/assets/stratum-product-walkthrough.gif" alt="STRATUM product walkthrough — credit tranching, fee waterfall, senior/junior tranches, live stack" width="760"/>
   <br/>
-  <sub>▶ Click to play the product walkthrough (MP4, ~1.5 MB) — tranche mechanics, epoch settlement, the fee waterfall, and the live demo UI</sub>
+  <sub>30s walkthrough — also available as <a href="docs/assets/stratum-product-video.mp4">MP4 with audio</a></sub>
 </p>
 
 ---
