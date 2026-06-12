@@ -1,14 +1,28 @@
-# STRATUM
+<p align="center">
+  <img src="docs/assets/stratum-thumbnail.svg" alt="STRATUM - Structured credit on Uniswap v4" width="900"/>
+</p>
 
-[![CI](https://github.com/guglxni/STRATUM/actions/workflows/ci.yml/badge.svg)](https://github.com/guglxni/STRATUM/actions/workflows/ci.yml)
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.26-blue)](https://soliditylang.org/)
-[![Foundry](https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg)](https://book.getfoundry.sh/)
+<p align="center">
+  <a href="https://github.com/guglxni/STRATUM/actions/workflows/ci.yml"><img src="https://github.com/guglxni/STRATUM/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
+  <a href="https://soliditylang.org/"><img src="https://img.shields.io/badge/Solidity-0.8.26-blue" alt="Solidity"/></a>
+  <a href="https://book.getfoundry.sh/"><img src="https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg" alt="Foundry"/></a>
+  <img src="https://img.shields.io/badge/Network-Unichain%20Sepolia-7c3aed" alt="Unichain Sepolia"/>
+  <img src="https://img.shields.io/badge/Hook-Uniswap%20v4-ff007a" alt="Uniswap v4"/>
+</p>
 
 STRATUM is a structured credit primitive for Uniswap v4 - the first hook to apply credit subordination to AMM liquidity. It splits a liquidity position into a fixed-yield, IL-protected senior tranche and a leveraged-fee, IL-absorbing junior tranche through an on-chain priority waterfall.
 
 > **Demo video:** _add link_ · **Live testnet addresses:** [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) · **Judge guide:** [docs/JUDGE_GUIDE.md](docs/JUDGE_GUIDE.md) · **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 The full stack is deployed and verified on **Unichain Sepolia** against the canonical Uniswap v4 `PoolManager`, with live peripherals across **Arbitrum Sepolia** (Stylus), **Reactive Lasna** (RSCs), and **Ethereum Sepolia** (Across, Chainlink, Brevis). See [docs/LIVE_SYSTEM.md](docs/LIVE_SYSTEM.md) for explorer evidence.
+
+<details>
+<summary><strong>▶ Product walkthrough</strong> — system overview, tranche mechanics, live demo</summary>
+<br/>
+<video src="docs/assets/stratum-product-video.mp4" controls poster="docs/assets/stratum-project-thumbnail.png" width="760">
+  <a href="docs/assets/stratum-product-video.mp4">Watch the product walkthrough</a>
+</video>
+</details>
 
 ---
 
