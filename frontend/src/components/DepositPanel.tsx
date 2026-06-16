@@ -9,10 +9,12 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAccount, useConnect, useReadContract } from "wagmi";
 import { parseUnits } from "viem";
 import { buildDemoPoolKey } from "../lib/poolKey";
 import { useZapDeposit, type DepositMode } from "../hooks/useZapDeposit";
+import { userPositionsQueryKey } from "../hooks/useUserPositions";
 import { usePoolOverview } from "../hooks/usePoolOverview";
 import { STRATUM_ADDRESSES, UNICHAIN_SEPOLIA } from "../config/addresses";
 import { DEMO_TOKEN_ABI } from "../abis/demoToken";
@@ -33,7 +35,8 @@ function toBytes32Salt(s: string): `0x${string}` {
 export default function DepositPanel() {
   // useAccount().chainId reports the wallet's real chain (incl. unconfigured ones); useChainId()
   // clamps to a configured chain and would never flag a wrong-network state.
-  const { isConnected, chainId } = useAccount();
+  const { address, isConnected, chainId } = useAccount();
+  const queryClient = useQueryClient();
   const { connect, connectors } = useConnect();
   const poolKey = buildDemoPoolKey();
   const { state, deposit, withdraw, reset, zapConfigured } = useZapDeposit();
@@ -119,9 +122,12 @@ export default function DepositPanel() {
       tickLower: parsed.tickLower,
       tickUpper: parsed.tickUpper,
     });
+    void queryClient.invalidateQueries({
+      queryKey: userPositionsQueryKey(address, STRATUM_ADDRESSES.zap),
+    });
     window.location.hash = "app";
     window.scrollTo(0, 0);
-  }, [state.phase, state.txHash, state.positionId, tranche]);
+  }, [state.phase, state.txHash, state.positionId, tranche, address, queryClient, parsed.userSalt, parsed.tickLower, parsed.tickUpper]);
 
   if (!zapConfigured || !poolKey) {
     return (

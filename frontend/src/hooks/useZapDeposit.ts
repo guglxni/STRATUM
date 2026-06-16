@@ -19,6 +19,7 @@ import { ERC20_ABI } from "../abis/erc20";
 import { STRATUM_ADDRESSES } from "../config/addresses";
 import type { PoolKeyStruct } from "../lib/poolKey";
 import { PERMIT2_BATCH_TYPES, buildZapPermit, permit2Domain, permitToTypedMessage } from "../lib/permit2";
+import { parseZapDepositedFromReceipt } from "../lib/zapPositionDiscovery";
 
 export type DepositMode = "approve" | "permit2" | "delivered";
 
@@ -187,20 +188,30 @@ export function useZapDeposit() {
           });
         }
 
-        await publicClient.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        if (receipt.status !== "success") {
+          setState({
+            phase: "error",
+            message:
+              "Transaction reverted. This position may already be open — check Positions, or use a new salt.",
+          });
+          return;
+        }
 
-        // positionId = keccak256(abi.encode(zap, tickLower, tickUpper, keccak256(abi.encode(user, userSalt))))
-        // Reading it back from the recorded owner mapping avoids re-implementing the preimage here.
-        const { encodeAbiParameters, keccak256 } = await import("viem");
-        const zapSalt = keccak256(
-          encodeAbiParameters([{ type: "address" }, { type: "bytes32" }], [address, userSalt])
-        );
-        const positionId = keccak256(
-          encodeAbiParameters(
-            [{ type: "address" }, { type: "int24" }, { type: "int24" }, { type: "bytes32" }],
-            [zap, tickLower, tickUpper, zapSalt]
-          )
-        );
+        const deposited = parseZapDepositedFromReceipt(receipt, zap);
+        let positionId = deposited?.positionId;
+        if (!positionId) {
+          const { encodeAbiParameters, keccak256 } = await import("viem");
+          const zapSalt = keccak256(
+            encodeAbiParameters([{ type: "address" }, { type: "bytes32" }], [address, userSalt])
+          );
+          positionId = keccak256(
+            encodeAbiParameters(
+              [{ type: "address" }, { type: "int24" }, { type: "int24" }, { type: "bytes32" }],
+              [zap, tickLower, tickUpper, zapSalt]
+            )
+          );
+        }
 
         setState({ phase: "done", message: "Position opened.", txHash: hash, positionId });
       } catch (e) {
@@ -227,7 +238,11 @@ export function useZapDeposit() {
           args: wArgs,
           gas: wGas,
         });
-        await publicClient.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        if (receipt.status !== "success") {
+          setState({ phase: "error", message: "Withdraw transaction reverted. Check your position key and try again." });
+          return;
+        }
         setState({ phase: "done", message: "Position closed; proceeds delivered to your wallet.", txHash: hash });
       } catch (e) {
         setState({ phase: "error", message: errMessage(e) });

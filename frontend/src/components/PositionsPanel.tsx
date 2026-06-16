@@ -126,8 +126,9 @@ function PositionRow({ p }: { p: UserPosition }) {
 
 export default function PositionsPanel() {
   const { address, isConnected, chainId } = useAccount();
-  const { data: positions, isLoading, isError, refetch } = useUserPositions(address);
+  const { data: positions, isLoading, isFetching, isError, refetch } = useUserPositions(address);
   const [refreshing, setRefreshing] = useState(false);
+  const scanning = isLoading || isFetching || refreshing;
   const wrongNetwork = isConnected && chainId !== UNICHAIN_SEPOLIA.id;
 
   // Re-scan when arriving fresh (e.g. right after a deposit) so a new position shows quickly.
@@ -164,11 +165,11 @@ export default function PositionsPanel() {
             setRefreshing(false);
           }}
         >
-          {refreshing ? "Scanning…" : "Rescan"}
+          {scanning ? "Scanning…" : "Rescan"}
         </button>
       </div>
 
-      {isLoading ? (
+      {scanning && (!positions || positions.length === 0) ? (
         <div className="dash-empty">Scanning zap events for your positions…</div>
       ) : isError ? (
         <div className="dash-empty">Could not scan positions. The RPC may be rate-limited; try Rescan.</div>
